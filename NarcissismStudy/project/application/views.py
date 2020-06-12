@@ -4,9 +4,6 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 def hello_world(request):
-<<<<<<< Updated upstream
-    return HttpResponse("request, 'hello_world.html hehe', {}")
-=======
     return HttpResponse("request, 'hello_world.html', {}")
 
 def inputdata(request):
@@ -15,4 +12,4 @@ def inputdata(request):
     if not os.path.exists('/TrainingDataset/' + profile):
         os.mkdir('/TrainingDataset/' + profile)
     return HttpResponse("Processed")
->>>>>>> Stashed changes
+
