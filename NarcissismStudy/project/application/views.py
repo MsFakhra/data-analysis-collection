@@ -1,7 +1,9 @@
-import pathlib
 import os
+import pathlib
 from django.http import HttpResponse
 from django.shortcuts import render
+from .tasks import extract_information
+from .tasks import process_Images
 
 def index(request):
     return render(request, 'index.html', {})
@@ -13,11 +15,15 @@ def thankyou(request):
     return render(request, 'thankyou.html', {})
 
 def inputdata(request):
-    # This just create the folder where I want to save the image.
+    # This will create the folder where i want to save the image
     profile = 'usmanmaliktest'
-    path = '/TrainingDataset/' + profile
-    if not os.path.exists(path):
-        path = pathlib.Path('TrainingDataset/' , profile)
-        path.parent.mkdir(parents=True, exist_ok=True)
-    return HttpResponse("Processed")
+    profile = 'annam.ahmad'
+    #profile = 'usmanahmedmalik'
+    profilepath = 'TrainingDataset/' + profile
+
+    if not os.path.exists(profilepath):
+        path = pathlib.Path('TrainingDataset/' + profile)
+        path.mkdir(exist_ok=True,parents=True)
+    extract_information(profile,profilepath)   
+    return HttpResponse("Hello I am Processed")
 
