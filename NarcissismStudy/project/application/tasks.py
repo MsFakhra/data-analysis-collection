@@ -134,9 +134,7 @@ UNTIL = datetime(2020,6,1)
 def extract_information(profilename,path):
     #here create the basic model for user info; NPI is not here
     #path is image path
-    profilepath = profilename
-
-    # Obtain profile
+    profilepath = profi    # Obtain profile
     profile = Profile.from_username(L.context, profilename)
     print("followers: ", profile.followers);
     print("full name: ", profile.full_name);
