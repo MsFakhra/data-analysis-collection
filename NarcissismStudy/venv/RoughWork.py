@@ -1,58 +1,31 @@
-def process_comments(post):
-    cmtlist = [];
-    ###processing comments
-    for cmt in comments:
-        comment = cmt.text.replace('\n', ' ').replace('\r', '');
-        stamp = cmt.created_at_utc;
-        msg = Message(True, comment, cmt.owner.username,stamp);
-        ############# analyzing comment for like ... a narcisst will prefer to like his praise
-        answer = cmt.answers
-        ####Observing likes
-        like_count = 0;
-        import inspect2
-        dict = inspect2.getgeneratorlocals(answer)
-        items = dict.items();
-        for p_id, p_info in items:
-            #print("\nNode ID:", p_id)
-            if(p_id == 'node'):
-                for key in p_info:
-                    #print(key + ':', p_info[key])
-                    if(key =='edge_liked_by'):
-                        field = p_info[key]
-                        like_count = field['count']
-        msg.setLikes(like_count);
+print('hello')
 
-        ############################ Conversation if present otherwise ignore
 
-        reply_no = 0
-        pca = cmt.answers
-        influencerinvolved = False
-        replyList = [];
-        for r in pca:
-                reply = r.text;
-                name = r.owner.username
-                if(name == profilename):
-                    influencerinvolved = True
-                reply = reply.replace('\n', ' ').replace('\r', '');
-                stamp = r.created_at_utc#.created_at_utc.isoformat();
-                replymsg = Message(False, reply, name, stamp);
-                is_tag_used = Taggedcomment(reply)
-                if (name == profilename and is_tag_used == True):
-                      replymsg.set_authorusestags(is_tag_used);
-                reply_no = reply_no + 1;
-                replymsg.setIndex(reply_no)
-                if (name == profilename):
-                    replymsg.setAuthorship('True')
-                replyList.append(replymsg);
-        if influencerinvolved:
-            processEmotion(tone_analyzer, msg)
-            cmtlist.append(msg)
-            prevscore = TextScore(msg.sentiment,msg.compscore)
-            for rep in replyList:
-                processEmotion(tone_analyzer,rep)
-                if (rep.sentiment == "Neutral" or rep.sentiment == "Analytical"):
-                    if (prevscore.tone == "Anger" or prevscore.tone == "Negative"):
-                        score = prevscore;
-                        rep.setEmotion(score)
-                cmtlist.append(rep)
-    return cmtlist;
+'''
+$python -m pip freeze
+
+
+certifi==2020.4.5.2
+chardet==3.0.4
+click==7.1.2
+Django==2.2.13
+dlib==19.20.0
+face-recognition==1.3.0
+face-recognition-models==0.3.0
+idna==2.9
+inspect2==0.1.2
+instaloader==4.4.4
+numpy==1.18.5
+Pillow==7.1.2
+python-dateutil==2.8.1
+pytz==2020.1
+requests==2.23.0
+six==1.15.0
+sqlparse==0.3.1
+style==1.1.0
+update==0.0.1
+urllib3==1.25.9
+watson-developer-cloud==2.10.1
+websocket-client==0.48.0
+
+'''

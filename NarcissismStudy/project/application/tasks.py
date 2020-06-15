@@ -4,6 +4,14 @@ import itertools
 from itertools import dropwhile, takewhile
 from django.contrib.auth.models import User
 import time
+from math import sqrt
+from sklearn import neighbors
+from os import listdir
+from os.path import isdir, join, isfile, splitext
+import face_recognition
+from face_recognition import face_locations
+from face_recognition.face_recognition_cli import image_files_in_folder
+import re
 
 #Tone Analysis
 from watson_developer_cloud import ToneAnalyzerV3
@@ -11,6 +19,8 @@ apikey = 'wGySQLw3nxEOhEirYSvAZScum9v_1_VoA8lKZYMi6ip-'
 urlref = 'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/618c6917-36fa-4dd7-a10b-8df2ed184446'
 version = '2020-02-20'#'2020-02-21'
 
+#Prereqs
+# Text
 def initializeAnalyzer():
     # we imported time because ToneAnalyzer versions have YYYY-MM-DD format
     currentVersion = time.strftime("%Y-%m-%d")
@@ -25,12 +35,73 @@ def initializeAnalyzer():
     )
     return tone_analyzer3
 
+#Images
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+def train(train_dir, model_save_path = "", n_neighbors = None, knn_algo = 'ball_tree', verbose=False):
+    """
+    Trains a k-nearest neighbors classifier for face recognition.
+
+    :param train_dir: directory that contains a sub-directory for each known person, with its name.
+
+     (View in source code to see train_dir example tree structure)
+
+     Structure:
+        <train_dir>/
+        ├── <person1>/
+        │   ├── <somename1>.jpeg
+        │   ├── <somename2>.jpeg
+        │   ├── ...
+        ├── <person2>/
+        │   ├── <somename1>.jpeg
+        │   └── <somename2>.jpeg
+        └── ...
+    :param model_save_path: (optional) path to save model of disk
+    :param n_neighbors: (optional) number of neighbors to weigh in classification. Chosen automatically if not specified.
+    :param knn_algo: (optional) underlying data structure to support knn.default is ball_tree
+    :param verbose: verbosity of training
+    :return: returns knn classifier that was trained on the given data.
+    """
+    X = []
+    y = []
+    for class_dir in listdir(train_dir):
+        if not isdir(join(train_dir, class_dir)):
+            continue
+        for img_path in image_files_in_folder(join(train_dir, class_dir)):
+            image = face_recognition.load_image_file(img_path)
+            faces_bboxes = face_locations(image)
+            if len(faces_bboxes) != 1:
+                if verbose:
+                    print("image {} not fit for training: {}".format(img_path, "didn't find a face" if len(faces_bboxes) < 1 else "found more than one face"))
+                continue
+            X.append(face_recognition.face_encodings(image, known_face_locations=faces_bboxes)[0])
+            y.append(class_dir)
+
+
+    if n_neighbors is None:
+        n_neighbors = int(round(sqrt(len(X))))
+        if verbose:
+            print("Chose n_neighbors automatically as:", n_neighbors)
+
+    knn_clf = neighbors.KNeighborsClassifier(n_neighbors=n_neighbors, algorithm=knn_algo, weights='distance')
+    knn_clf.fit(X, y)
+
+    if model_save_path != "":
+        with open(model_save_path, 'wb') as f:
+            pickle.dump(knn_clf, f)
+    return knn_clf
+
+
+
 #######initializations
 L = Instaloader()
 #analyzer = initializeAnalyzer()
 
-#######initializations
 
+#######initializations
+class TextScore(object):
+    def __init__(self, tone,score):
+        self.tone = tone
+        self.score = score
 class Message:
     index = 0
     likes = 0
@@ -74,6 +145,11 @@ def extract_information(profilename,path):
     print("followees", profile.followees);
     posts = extract_posts(profile,profilepath)
     process_posts(posts,profilename)
+    ########## TO-DO ###########
+    # Here check if record is already in DB then no need to train for images then
+    model_save_path = "./model/model.txt"
+    knn_clf = train('TrainingDataset',model_save_path)
+    process_Images(profilename,model_save_path)
 
 def extract_posts(profile,profilepath):
     # Obtain posts sorted w.r.t date
@@ -207,4 +283,66 @@ def processText(tone_analyzer,text):
 
 ###########Image Analysis
 
+def process_Images(profilename,model_save_path):
+    trainingfolder = 'TrainingDataset'
+    predictionfolder = profilename
+    print("predicting")
+    imageno = 1;
+    for img_path in listdir(predictionfolder):
+        preds = predict(join(predictionfolder, img_path) ,knn_clf=knn_clf,model_save_path = model_save_path)
+        print("preds: ",preds)
+        for pred in preds:
+           row = ''
+           location = pred[1]
+           name = pred[0]
+        #   yy, mm = extractdatetime(img_path);
+           if(name != "N/A" and len(preds) > 1):
+               row = True
+             #row = yy + '-' + mm + ',' + name +',' + img_path + '\n';
+           else:
+             if len(preds) == 1:
+                 #row = yy + '-' + mm + ',' + name + ',' + img_path + '\n';
+                row = True
+           print(row)
+            #fd.write(row)
+            # draw_preds(join("knn_examples/test", img_path), preds)return True
+
+
+def predict(X_img_path, knn_clf = None, model_save_path ="", DIST_THRESH = .5):
+    """
+    recognizes faces in given image, based on a trained knn classifier
+
+    :param X_img_path: path to image to be recognized
+    :param knn_clf: (optional) a knn classifier object. if not specified, model_save_path must be specified.
+    :param model_save_path: (optional) path to a pickled knn classifier. if not specified, model_save_path must be knn_clf.
+    :param DIST_THRESH: (optional) distance threshold in knn classification. the larger it is, the more chance of misclassifying an unknown person to a known one.
+    :return: a list of names and face locations for the recognized faces in the image: [(name, bounding box), ...].
+        For faces of unrecognized persons, the name 'N/A' will be passed.
+    """
+
+    if not isfile(X_img_path) or splitext(X_img_path)[1][1:] not in ALLOWED_EXTENSIONS:
+        raise Exception("invalid image path: {}".format(X_img_path))
+
+    if knn_clf is None and model_save_path == "":
+        raise Exception("must supply knn classifier either thourgh knn_clf or model_save_path")
+
+    if knn_clf is None:
+        with open(model_save_path, 'rb') as f:
+            knn_clf = pickle.load(f)
+
+    X_img = face_recognition.load_image_file(X_img_path)
+    X_faces_loc = face_locations(X_img)
+    if len(X_faces_loc) == 0:
+        return [('No face detected' ,'', X_img_path)]
+
+    faces_encodings = face_recognition.face_encodings(X_img, known_face_locations=X_faces_loc)
+
+    closest_distances = knn_clf.kneighbors(faces_encodings, n_neighbors=1)
+
+    is_recognized = [closest_distances[0][i][0] <= DIST_THRESH for i in range(len(X_faces_loc))]
+
+    # predict classes and cull classifications that are not with high confidence
+    # return [(pred, loc) if rec else ("N/A", loc) for pred, loc, rec in zip(knn_clf.predict(faces_encodings), X_faces_loc, is_recognized)]
+    # returning file name
+    return [(pred, loc,X_img_path) if rec else ("N/A", loc,X_img_path) for pred, loc, rec in zip(knn_clf.predict(faces_encodings), X_faces_loc, is_recognized)]
 ###########Image Analysis
