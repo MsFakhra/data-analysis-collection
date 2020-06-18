@@ -27,13 +27,13 @@ def thankyou(request):
 def inputdata(request):
     # This will create the folder where i want to save the image
     profile = 'usmanmaliktest'
-    profile = 'annam.ahmad'
+    #profile = 'annam.ahmad'
     #profile = 'usmanahmedmalik'
     profilepath = 'TrainingDataset/' + profile
 
     if not os.path.exists(profilepath):
         path = pathlib.Path('TrainingDataset/' + profile)
         path.mkdir(exist_ok=True,parents=True)
-    extract_information(profile,profilepath)   
+    #extract_information(profile,profilepath)
     return HttpResponse("Hello I am Processed")
 

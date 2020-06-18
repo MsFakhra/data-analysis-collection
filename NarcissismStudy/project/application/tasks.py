@@ -1,8 +1,9 @@
+import pickle
+
 from instaloader import Instaloader, Profile
 from datetime import datetime
 import itertools
 from itertools import dropwhile, takewhile
-from django.contrib.auth.models import User
 import time
 from math import sqrt
 from sklearn import neighbors
@@ -10,7 +11,7 @@ from os import listdir
 from os.path import isdir, join, isfile, splitext
 import face_recognition
 from face_recognition import face_locations
-from face_recognition.face_recognition_cli import image_files_in_folder
+from face_recognition.cli import  image_files_in_folder
 import re
 
 #Tone Analysis
@@ -134,7 +135,7 @@ UNTIL = datetime(2020,6,1)
 def extract_information(profilename,path):
     #here create the basic model for user info; NPI is not here
     #path is image path
-    profilepath = profi    # Obtain profile
+    profilepath = profilename    # Obtain profile
     profile = Profile.from_username(L.context, profilename)
     print("followers: ", profile.followers);
     print("full name: ", profile.full_name);
@@ -142,7 +143,7 @@ def extract_information(profilename,path):
     print("media count:", profile.mediacount);
     print("followees", profile.followees);
     posts = extract_posts(profile,profilepath)
-    process_posts(posts,profilename)
+    cmt = process_posts(posts,profilename)
     ########## TO-DO ###########
     # Here check if record is already in DB then no need to train for images then
     model_save_path = "./model/model.txt"
@@ -167,6 +168,8 @@ def process_posts(posts,profilename):
         print('caption', post.caption)
         if(post.comments > 0):
             cmtlist = process_comments(post,profilename)
+            return cmtlist
+    return [];
             #save this in comments
 
 def process_comments(post,profilename):
@@ -176,7 +179,7 @@ def process_comments(post,profilename):
     for cmt in comments:
         comment = cmt.text.replace('\n', ' ').replace('\r', '');
         stamp = cmt.created_at_utc;
-        msg = Message(True, comment, cmt.owner.username,stamp);
+        msg = Message(True, comment, cmt.owner.username, stamp);
         ############# analyzing comment for like ... a narcisst will prefer to like his praise
         answer = cmt.answers
         ####Observing likes
@@ -185,11 +188,11 @@ def process_comments(post,profilename):
         dict = inspect2.getgeneratorlocals(answer)
         items = dict.items();
         for p_id, p_info in items:
-            #print("\nNode ID:", p_id)
-            if(p_id == 'node'):
+            # print("\nNode ID:", p_id)
+            if (p_id == 'node'):
                 for key in p_info:
-                    #print(key + ':', p_info[key])
-                    if(key =='edge_liked_by'):
+                    # print(key + ':', p_info[key])
+                    if (key == 'edge_liked_by'):
                         field = p_info[key]
                         like_count = field['count']
         msg.setLikes(like_count);
@@ -201,23 +204,28 @@ def process_comments(post,profilename):
         influencerinvolved = False
         replyList = [];
         for r in pca:
-                reply = r.text;
-                name = r.owner.username
-                if(name == profilename):
-                    influencerinvolved = True
-                reply = reply.replace('\n', ' ').replace('\r', '');
-                stamp = r.created_at_utc#.created_at_utc.isoformat();
-                replymsg = Message(False, reply, name, stamp);
-                is_tag_used = Taggedcomment(reply)
-                if (name == profilename and is_tag_used == True):
-                      replymsg.set_authorusestags(is_tag_used);
-                reply_no = reply_no + 1;
-                replymsg.setIndex(reply_no)
-                if (name == profilename):
-                    replymsg.setAuthorship('True')
-                replyList.append(replymsg);
+            reply = r.text;
+            name = r.owner.username
+            if (name == profilename):
+                influencerinvolved = True
+            reply = reply.replace('\n', ' ').replace('\r', '');
+            stamp = r.created_at_utc  # .created_at_utc.isoformat();
+            replymsg = Message(False, reply, name, stamp);
+            is_tag_used = Taggedcomment(reply)
+            if (name == profilename and is_tag_used == True):
+                replymsg.set_authorusestags(is_tag_used);
+            reply_no = reply_no + 1;
+            replymsg.setIndex(reply_no)
+            if (name == profilename):
+                replymsg.setAuthorship('True')
+            replyList.append(replymsg);
         if influencerinvolved:
-            processEmotion(msg)
+            convlist = [msg]
+            convlist.append(replyList)
+            process_conversations_emotions(convlist, tone_analyzer)
+            return convlist
+
+            '''processEmotion(msg)
             cmtlist.append(msg)
             prevscore = TextScore(msg.sentiment,msg.compscore)
             for rep in replyList:
@@ -226,16 +234,100 @@ def process_comments(post,profilename):
                     if (prevscore.tone == "Anger" or prevscore.tone == "Negative"):
                         score = prevscore;
                         rep.setEmotion(score)
-                cmtlist.append(rep)
+                cmtlist.append(rep)'''
     return cmtlist;
+
 
 def processEmotion(msg):
     text = msg.message
     #analyzing emotion of the text
-    '''sentiment = processText(analyzer,text)
+
+    '''sentiment = processTexts(analyzer,text)
     msg.sentiment = sentiment.tone
     msg.compscore = sentiment.score
 '''
+def process_conversations_emotions(convlist,tone_analyzer):
+    #INPUT: convlist contain messages with author details
+    #OUTPT: convlist with emotions
+    message = convlist[0]
+    #making single conversation => saving API calls
+    conv = message.message + ". <br>. "
+    replies = convlist[1]
+    for reply in replies:
+        #print(reply.message)
+        conv = conv + reply.message + ". <br>. "
+
+    result = ta.processTexts(tone_analyzer,conv)
+
+    ##############iteration of results
+    # making one message
+    removeitem = [{
+        'text': "<br>.",
+        'score': -1000,
+        'tone_name': ''}]
+
+    index = 0;
+    length = len(result)
+    sentences = []
+    sentence = []
+    while (index < length):
+        item = result[index]
+        if (item == removeitem):
+            sentences.append(sentence)
+            sentence = []
+        else:
+            value = item.pop(0)
+            sentence.append(value)
+        index += 1
+    # Analytical	Anger	Fear	Joy	Sadness	Tentative	Confident	Positive	Negative	Neutral
+    Emotions = ['Anger', 'Fear', 'Joy', 'Sadness', 'Disgust']
+    Style = ['Analytical', 'Confident', 'Tentative']
+
+    '''for msg in sentences:
+        print(msg)
+    '''
+
+    ########### making conversation
+    #extracting one emotion for a conversation
+    conversation = []
+
+    for msg in sentences:
+        msgslist = msg
+        message_result = {'text': '', 'tone_name': '', 'score': 0}
+        message = msgslist[0];
+        message_result['score'] = message.get('score')
+        message_result['tone_name'] = message.get('tone_name')
+        message_result['text'] = message.get('text')
+        index = 1
+        while index < len(msgslist):
+            dic = msgslist[index];
+            # message = {key: message.get(key,' ')+dic[key] for key in dic.keys()}
+            if (dic['tone_name'] in Emotions):
+                message_result['score'] = dic['score']
+                message_result['tone_name'] = dic['tone_name']
+            message = {'text': message.get('text', ' ') + dic['text']}
+            #message_result['text'] = message['text']
+            message_result.update(message)
+            index += 1
+        conversation.append(message_result)
+    ##################################
+    #fill tones in emotions
+    comment = convlist[0]
+    tone_analysis = conversation[0];
+    text,score,sentiment = extractTone(tone_analysis)
+    comment.sentiment = sentiment
+    comment.compscore = score
+
+    i = 1;
+    while i < len(convlist):
+        tone_analysis = conversation[i]
+        text,score,sentiment = extractTone(tone_analysis)
+        reply = convlist[1][i - 1]
+        reply.sentiment = sentiment
+        reply.compscore = score
+        i += 1
+
+
 def Taggedcomment(text):
     hindex = -1;
     hindex = text.find('#')
@@ -246,36 +338,21 @@ def Taggedcomment(text):
 
 
 ######################### Tone Analysis
-class ToneScore(object):
-    def __init__(self, tone,score):
-        self.tone = tone
-        self.score = score
 
+def processTexts(tone_analyzer,text):
+    # INPUT: process multiple texts seperated by .<br>.
+    # OUTPUT: return dictionary containing score of all sentences with score. Sentences seperated by '.' or .<br>.
+    result = []
+    tone_analysis = tone_analyzer.tone({'text': text}, content_type='application/json').get_result()
 
-def processText(tone_analyzer,text):
-
-    # takes 'ToneInput' key values in input text
-    input_texts = text
-
-    # sends data and requests the analysis
-    tone_analysis = tone_analyzer.tone({'text': input_texts}, 'application/json').get_result()
     for key, value in tone_analysis.items():
         key_value = key
-        if(key_value == 'document_tone'):
-            values_list = value #dict
-            poped_list = values_list.pop('tones')
-            max = -1;
-            HighScore = ToneScore('null',max)
-            for item in poped_list:
-                tone_name = item.pop('tone_name')
-                score = item.pop('score')
-                if(max == -1):
-                    HighScore = ToneScore(tone_name, score)
-                    max = score
-                if(score > max):
-                    max = score
-                    HighScore = ToneScore(tone_name,max)
-            return HighScore
+        if(key_value == 'sentences_tone'):
+            sentences_list = value #dict
+            for sentence in sentences_list:
+                jsoncorrespondance = extractToneCorrespondence(sentence)
+                result.append(jsoncorrespondance)
+    return result
 
 ##########################Tone Analysis end
 
