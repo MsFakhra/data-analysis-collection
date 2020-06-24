@@ -12,3 +12,9 @@ class Users(models.Model):
     followers = models.IntegerField(default=0)
     following = models.IntegerField(default=0)
     created_at = models.DateTimeField('created')
+
+class Posts(models.Model):
+    postid = models.BigIntegerField(primary_key=True)
+    instagram = models.CharField(max_length=200)
+    url = models.TextField()
+    hashtags = models.TextField()

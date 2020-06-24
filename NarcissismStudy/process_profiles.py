@@ -12,6 +12,7 @@ cursor = conn.execute("SELECT id from application_users")
 for row in cursor:
    print("ID = ", row[0])
 
+
 # select users which are not processed
 # in a loop . apply face recoginition on user
 # get score
