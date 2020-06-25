@@ -5,7 +5,7 @@ class Users(models.Model):
     full_name = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
     instagram = models.CharField(max_length=200)
-    selfie = models.CharField(max_length=500)
+    selfie = models.ImageField()
     npi_score = models.IntegerField(default=0)
     biography = models.CharField(max_length=500)
     media_count = models.IntegerField(default=0)
@@ -13,6 +13,9 @@ class Users(models.Model):
     following = models.IntegerField(default=0)
     created_at = models.DateTimeField('created')
     state = models.TextField('state', default= 'pending')
+
+    def __str__(self):
+        return self.full_name
 
 class Posts(models.Model):
     user_id = models.BigIntegerField('user_id') #P.K
@@ -26,6 +29,9 @@ class Posts(models.Model):
     likes = models.BigIntegerField('likes')
     caption = models.TextField('caption')
 
+    def __str__(self):
+        return self.instagram
+
 class Comment(models.Model):
     post_id = models.BigIntegerField('post_id')  # F.K
     posted_on = models.DateTimeField('posted_on')
@@ -37,6 +43,9 @@ class Comment(models.Model):
     likes = models.IntegerField('likes')
     caption = models.TextField('caption')
 
+    def __str__(self):
+        return self.post_id
+
 class Picture(models.Model):
     post_id = models.BigIntegerField('post_id')  # F.K
     posted_on = models.DateTimeField('posted_on')
@@ -44,3 +53,5 @@ class Picture(models.Model):
     person = models.TextField('person') #include which person was identified
     image_path = models.TextField('image_path')
 
+    def __str__(self):
+        return self.post_id

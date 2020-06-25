@@ -11,6 +11,7 @@ def index(request):
     return render(request, 'index.html', {})
 
 def step2(request):
+    instagram = request.POST['instagram']
     user = Users(
         full_name = request.POST['full_name'],
         email = request.POST['email'],
@@ -18,22 +19,20 @@ def step2(request):
         created_at = datetime.datetime.now(),
     )
     user.save()
-    print (request.FILES)
+
+    handle_uploaded_file(request.FILES['selfie'],instagram)
     return render(request, 'step2.html', {})
 
 def thankyou(request):
     return render(request, 'thankyou.html', {})
 
-def inputdata(request):
-    # This will create the folder where i want to save the image
-    profile = 'usmanmaliktest'
-    #profile = 'annam.ahmad'
-    #profile = 'usmanahmedmalik'
-    profilepath = 'TrainingDataset/' + profile
+def handle_uploaded_file(f,instagram):
+    profilepath = 'TrainingDataset/' + instagram
 
     if not os.path.exists(profilepath):
-        path = pathlib.Path('TrainingDataset/' + profile)
+        path = pathlib.Path('TrainingDataset/' + instagram)
         path.mkdir(exist_ok=True,parents=True)
-    #extract_information(profile,profilepath)
-    return HttpResponse("Hello I am Processed")
 
+    with open('TrainingDataset/' + instagram + '/name.jpg', 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
