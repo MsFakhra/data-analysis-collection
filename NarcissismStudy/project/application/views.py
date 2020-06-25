@@ -27,6 +27,8 @@ def thankyou(request):
     return render(request, 'thankyou.html', {})
 
 def handle_uploaded_file(f,instagram):
+    # os.mkdir('TrainingDataset/' + instagram)
+
     profilepath = 'TrainingDataset/' + instagram
 
     if not os.path.exists(profilepath):
