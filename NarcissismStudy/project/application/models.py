@@ -14,9 +14,6 @@ class Users(models.Model):
     created_at = models.DateTimeField('created',default= datetime.now, null = True)
     state = models.TextField('state', default= 'pending')
 
-    def __str__(self):
-        return self.full_name
-
 class Posts(models.Model):
     user_id = models.BigIntegerField('user_id') #P.K
     instagram = models.CharField('instagram',max_length=200, null = True)  #F.K
@@ -29,9 +26,6 @@ class Posts(models.Model):
     likes = models.BigIntegerField('likes', null = True)
     caption = models.TextField('caption', null = True)
 
-    def __str__(self):
-        return self.instagram
-
 class Comment(models.Model):
     post_id = models.BigIntegerField('post_id', null = True)  # F.K
     posted_on = models.DateTimeField('posted_on', null = True)
@@ -43,9 +37,6 @@ class Comment(models.Model):
     likes = models.IntegerField('likes', null = True)
     text = models.TextField('caption', null = True)
 
-    def __str__(self):
-        return self.post_id
-
 class Picture(models.Model):
     post_id = models.BigIntegerField('post_id', null = True)  # F.K
     instagram = models.CharField('instagram', max_length=200, null=True)  # F.K
@@ -54,5 +45,3 @@ class Picture(models.Model):
     person = models.TextField('person', null = True) #include which person was identified
     image_path = models.TextField('image_path', null = True)
 
-    def __str__(self):
-        return self.post_id
