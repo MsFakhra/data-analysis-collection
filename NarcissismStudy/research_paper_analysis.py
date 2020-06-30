@@ -101,6 +101,7 @@ knn_clf = train('TrainingDataset') #image knn classifier
 conn = sqlite3.connect('project/db.sqlite3') #Database
 print("Opened database successfully")
 
+#exit(0)
 #######initializations
 class TextScore(object):
     def __init__(self, tone,score):
@@ -132,7 +133,7 @@ class Message:
 
 
 #one post usmanmaliktest
-SINCE = datetime(2020, 5, 1)    #yyyy-mm-dd
+SINCE = datetime(2017, 5, 1)    #yyyy-mm-dd
 UNTIL = datetime(2020,6,1)
 
 def extract_information(profilename):
@@ -170,7 +171,6 @@ def extract_information(profilename):
     # Here check if record is already in DB then no need to train for images then
     #model_save_path = "./model/model.txt"
     #knn_clf = train('TrainingDataset',model_save_path)
-
     image_processed = process_Images(profilename,id)#,model_save_path)
     if posts_processed == True and image_processed == True:
         upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
@@ -189,8 +189,8 @@ def extract_posts(profile,profilepath):
     posts = []
     posts_sorted_by_date = sorted(profile.get_posts(), key=lambda p: p.date, reverse=False)
     counter = 0
-    # post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
-    for post in posts_sorted_by_date:
+    for post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
+    #for post in posts_sorted_by_date:
         print (post.caption)
         json = L.download_post(post,profilepath)
         posts.append(post)
@@ -635,13 +635,16 @@ import os
 import pathlib
 
 def startjob():
+    print("starting")
+    list = ["diipakhosla","nadiamaya_","annam.ahmad"]
+    for instagram in list:
+        insql = "INSERT INTO application_users (instagram,state) " \
+        "VALUES ('%s','pending')" \
+        % (instagram)
+        conn.execute(insql)
+        conn.commit()
+        extract_information(instagram)
 
-    cursor = conn.execute("SELECT * from application_users WHERE state = 'pending';")
-    for row in cursor:
-        profile = row[3]
-        extract_information(profile)
-        #print("ID = ", row)
-    #extract_information(profile,profilepath)
 
 if __name__ == '__main__':
     startjob()
