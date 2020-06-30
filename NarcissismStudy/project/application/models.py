@@ -45,3 +45,8 @@ class Picture(models.Model):
     person = models.TextField('person', null = True) #include which person was identified
     image_path = models.TextField('image_path', null = True)
 
+class Follow(models.Model):
+    recorded_at = models.DateTimeField('recorded_at',default= datetime.now, null = True)
+    followers = models.BigIntegerField('followers', null = True)
+    following = models.BigIntegerField('following', null = True)
+    instagram = models.CharField(max_length=200, null = True)

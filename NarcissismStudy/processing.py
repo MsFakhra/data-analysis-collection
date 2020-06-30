@@ -189,8 +189,8 @@ def extract_posts(profile,profilepath):
     posts = []
     posts_sorted_by_date = sorted(profile.get_posts(), key=lambda p: p.date, reverse=False)
     counter = 0
-    for post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
-    #for post in posts_sorted_by_date:
+    # post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
+    for post in posts_sorted_by_date:
         print (post.caption)
         json = L.download_post(post,profilepath)
         posts.append(post)
@@ -635,6 +635,7 @@ import os
 import pathlib
 
 def startjob():
+
     cursor = conn.execute("SELECT * from application_users WHERE state = 'pending';")
     for row in cursor:
         profile = row[3]
