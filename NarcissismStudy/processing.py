@@ -99,7 +99,6 @@ L = Instaloader()
 analyzer = initializeAnalyzer()  #sentiment analyzer
 knn_clf = train('TrainingDataset') #image knn classifier
 conn = sqlite3.connect('project/db.sqlite3') #Database
-
 print("Opened database successfully")
 
 #######initializations
@@ -136,27 +135,57 @@ class Message:
 SINCE = datetime(2020, 5, 1)    #yyyy-mm-dd
 UNTIL = datetime(2020,6,1)
 
-def extract_information(profilename,path):
+def extract_information(profilename):
     #here create the basic model for user info; NPI is not here
     #path is image path
     profilepath = profilename    # Obtain profile
-    profile = Profile.from_username(L.context, profilename)
-    print("followers: ", profile.followers);
-    print("full name: ", profile.full_name);
-    print("biography: ", profile.biography);
-    print("media count:", profile.mediacount);
-    #print("followees", profile.followees);
+    profile     = Profile.from_username(L.context, profilename)
+    followers   = profile.followers
+    name        = profile.full_name
+    biography   = profile.biography
+    media_count = profile.mediacount
+    followees   = profile.followees
+    #Updating user table with information
+    upsql = "UPDATE application_users SET " \
+            "biography = '" + biography + "'," \
+            "media_count = " + str(media_count) + "," \
+            "followers = " + str(followers) + "," \
+            "following = " + str(followees) + "," \
+            "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
+    cur = conn.cursor()
+    cur.execute(upsql)
+    conn.commit()
+
+    id = -1
+    cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
+    for row in cursor:
+        id = row[0]
+
+    image_processed = False
+    posts_processed = False
     posts = extract_posts(profile,profilepath)
-    processed = process_posts(posts,profilename)
+    posts_processed = process_posts(posts,profilename,id)
+
     ########## TO-DO ###########
     # Here check if record is already in DB then no need to train for images then
     #model_save_path = "./model/model.txt"
     #knn_clf = train('TrainingDataset',model_save_path)
 
-    image_details_list = process_Images(profilename)#,model_save_path)
+    image_processed = process_Images(profilename,id)#,model_save_path)
+    if posts_processed == True and image_processed == True:
+        upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
+        cur = conn.cursor()
+        cur.execute(upsql)
+        conn.commit()
+
 
 def extract_posts(profile,profilepath):
     # Obtain posts sorted w.r.t date
+    '''
+    :param profile: the profile name
+    :param profilepath:
+    :return: list containing posts extracted
+    '''
     posts = []
     posts_sorted_by_date = sorted(profile.get_posts(), key=lambda p: p.date, reverse=False)
     counter = 0
@@ -172,42 +201,102 @@ def extract_posts(profile,profilepath):
 
 ######################### Tone Analysis
 
-def process_posts(posts,profilename):
+def process_posts(posts,profilename,user_id):
+    '''
+    This function process the post data and fill into the database
+    :param posts:
+    :param profilename:
+    :return: boolean that post is processsed
+    '''
+    instagram = profilename
     processed = False
     cmtlist = []
     hashtaglist = []
     for post in posts:
-        print('caption', post.caption)
+        caption = post.caption
         ##### priliminary information #####
         date = post.date #datetime
-        url = post.url #str
-        mentions_list = post.caption_mentions #str
-        isVideo = post.is_video #bool
+        posted_on = date.strftime('"%y/%m/%d"')
+        post_url = post.url #str
+         #str
+        is_video = post.is_video #bool
         likes = post.likes #int
         ##### ##### #####
-        #process hashtags
-        hashtag_list = process_caption_tags(post) #str
-        print(hashtag_list)
+        #process mentions and hashtags
+        mentions = process_mentions(post)
+        hashtags = process_caption_tags(post) #str
+        print(hashtags)
 
         #taggedusers
-        taggedusers_list = process_tagged_users(post) #str
-        print(taggedusers_list)
+        tagged_users = process_tagged_users(post) #str
+        print(tagged_users)
+
+        ##Inserting a post to database
+        insql = "INSERT INTO application_posts (user_id,instagram,posted_on,post_url,hashtags,mentions,tagged_users,is_video,likes,caption ) " \
+                "VALUES ('%d','%s','%s','%s','%s','%s','%s','%s','%d','%s')" \
+                % (user_id,instagram,posted_on,post_url,hashtags,mentions,tagged_users,is_video,likes,caption)
+
+        conn.execute(insql)
+        conn.commit()
         #process comments
         if(post.comments > 0):
             cmtlist = process_comments(post,profilename)
-            print(cmtlist)
-            return cmtlist
-        print('should update posts in db and then update processed as true')
+            outsql = "SELECT ID from application_posts WHERE post_url = '" + post_url + "';"
+            cursor = conn.execute(outsql)
+            id = -1
+            for row in cursor:
+                id = row[0]
+            return write_comments_db(cmtlist, profilename,id)
+
+    print('should update posts in db and then update processed as true')
     return processed;
             #save this in database
+#write Comments to DB
+def write_comments_db(cmtlist, profilename,post_id):
+    message = cmtlist[0]
+    posted_on = message.timestamp.strftime('"%y/%m/%d"')
+    owner = message.owner
+    is_comment = message.iscomment
+    sentiment = message.sentiment
+    sscore = message.compscore
+    tag_used = message.is_tag_used
+    likes = message.likes
+    text = message.message
 
+    insql = "INSERT INTO application_comment (post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text) " \
+                    "VALUES ('%d','%s','%s','%s','%s','%f','%s','%d','%s')" \
+                    %(post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text)
+
+    conn.execute(insql)
+    conn.commit()
+    reply_list = cmtlist[1]
+    index = 0
+    while index < len(reply_list):
+        reply = reply_list[index]
+        posted_on = reply.timestamp.strftime('"%y/%m/%d"')
+        owner = reply.owner
+        is_comment = reply.iscomment
+        sentiment = reply.sentiment
+        sscore = reply.compscore
+        tag_used = reply.is_tag_used
+        likes = reply.likes
+        text = reply.message
+
+        insql = "INSERT INTO application_comment (post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text) " \
+                "VALUES ('%d','%s','%s','%s','%s','%f','%s','%d','%s')" \
+                % (post_id, posted_on, owner, is_comment, sentiment, sscore, tag_used, likes, text)
+
+        conn.execute(insql)
+        conn.commit()
+        index += 1
+    return True
 ##Process mentions
 def process_mentions(post):
     mentions = post.caption_mentions
     if len(mentions) == 0:
-        return "No Tagged User"
+        return "No mentions"
     else:
-        mentions_list = ','.join(mentions)
+        mentions_list = '\n'.join(mentions)
         return mentions_list
 
 ##Process Tagged Users
@@ -430,7 +519,7 @@ def extract_date(img_path):
     date_data = date_data[0].split('_')
     return date_data[0]
 
-def process_Images(profilename):#,model_save_path):
+def process_Images(profilename,instagram):#,model_save_path):
     #takes the profile folder and uses knn to identify faces
     #returns list of selfies of the profile
     image_details_list = []
@@ -448,29 +537,58 @@ def process_Images(profilename):#,model_save_path):
                #location = pred[1] location of face
                #print("pred: ", pred)
                date = extract_date(img_path)
+
                if(len(preds) > 1):
                    precount += 1
                    #for imagetuple in preds:
                    if profilename in pred:#imagetuple:
                       found = True
-                      row = date+ ','+profilename + ',' + img_path + '\n';
+                      row = [date,True, profilename , profilename+"/"+img_path ];
                       image_details_list.append(row)
                    if precount == len(preds) and found == False:
-                      row = date + ',' + 'Many other faces' + ',' + img_path + '\n';
+                      #row = date + ',' + 'Many other faces' + ',' + img_path + '\n';
+                      row = [date, False, 'Many other faces', profilename + "/" + img_path];
                       image_details_list.append(row)
                else:
                    if len(preds) == 1:
                        name = pred[0]
                        if(name == profilename):
-                           row = date + ',' + name + ',' + img_path + '\n';
+                           #row = date + ',' + name + ',' + img_path + '\n';
+                           row = [date, True, name, profilename + "/" + img_path];
                            image_details_list.append(row)
                        else:
-                           row = date + ',' + 'Others' + ',' + img_path + '\n';
+                           #row = date + ',' + 'Others' + ',' + img_path + '\n';
+                           row = [date, False, 'Others', profilename + "/" + img_path];
                            image_details_list.append(row)
 
     #print(image_details_list)
-    return image_details_list
+    flag = write_image_details_db(image_details_list,instagram)
+    return flag
 
+def write_image_details_db(image_details_list,instagram):
+    '''
+    This function takes the list and write into the DB
+    :param image_details_list:
+    :param instagram:
+    :return:
+    '''
+
+    for rec in image_details_list:
+        date = rec[0]
+        format_str = '%Y-%m-%d'  # The format
+        datetime_obj = datetime.strptime(date, format_str)
+        posted_on = datetime_obj.strftime('"%y/%m/%d"')
+        selfie = rec[1]
+        person = rec[2]
+        image_path = rec[3]
+        ##Inserting a post to database
+        insql = "INSERT INTO application_picture (instagram,posted_on,selfie,person,image_path ) " \
+                "VALUES ('%s','%s','%s','%s','%s')" \
+                %(instagram, posted_on, selfie, person, image_path)
+
+        conn.execute(insql)
+        conn.commit()
+    return True
 
 
 def predict(X_img_path, knn_clf = None, model_save_path ="", DIST_THRESH = .5):
@@ -516,13 +634,26 @@ def predict(X_img_path, knn_clf = None, model_save_path ="", DIST_THRESH = .5):
 import os
 import pathlib
 
+def startjob():
+    cursor = conn.execute("SELECT * from application_users WHERE state = 'pending';")
+    for row in cursor:
+        profile = row[3]
+        extract_information(profile)
+        #print("ID = ", row)
+    #extract_information(profile,profilepath)
+
 if __name__ == '__main__':
-    profile = 'usmanmaliktest'
+    startjob()
+
+'''
+profile = 'usmanmaliktest'
     #profile = 'annam.ahmad'
     # profile = 'usmanahmedmalik'
     profilepath = 'TrainingDataset/' + profile
 
-    if not os.path.exists(profilepath):
-        path = pathlib.Path('TrainingDataset/' + profile)
-        path.mkdir(exist_ok=True, parents=True)
+    #if not os.path.exists(profilepath):
+    #    path = pathlib.Path('TrainingDataset/' + profile)
+    #    path.mkdir(exist_ok=True, parents=True)
     extract_information(profile,profilepath)
+
+'''
