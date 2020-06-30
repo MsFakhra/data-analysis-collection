@@ -7,7 +7,7 @@ class Users(models.Model):
     instagram = models.CharField(max_length=200, null = True)
     selfie = models.CharField(max_length=500, null = True)
     npi_score = models.IntegerField(default=0, null = True)
-    biography = models.CharField(max_length=500, null = True)
+    biography = models.CharField(max_length=500, null = True, blank=True)
     media_count = models.IntegerField(default=0, null = True)
     followers = models.IntegerField(default=0, null = True)
     following = models.IntegerField(default=0, null = True)
