@@ -11,7 +11,7 @@ from os import listdir
 from os.path import isdir, join, isfile, splitext
 import face_recognition
 from face_recognition import face_locations
-from face_recognition.cli import  image_files_in_folder
+from face_recognition.face_detection_cli import image_files_in_folder
 import sqlite3
 
 
@@ -21,6 +21,8 @@ apikey = 'wGySQLw3nxEOhEirYSvAZScum9v_1_VoA8lKZYMi6ip-'
 urlref = 'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/618c6917-36fa-4dd7-a10b-8df2ed184446'
 version = '2020-02-20'#'2020-02-21'
 
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+vanalyzer = SentimentIntensityAnalyzer()
 #Prereqs
 # Text
 def initializeAnalyzer():
@@ -95,11 +97,27 @@ def train(train_dir, model_save_path = "", n_neighbors = None, knn_algo = 'ball_
 
 
 #######initializations
+#ref: https://www.codetable.net/unicodecharacters?page=89
+happy = [128513,128514,128515,128516,128517,128518,128519,128520,128521,128522,128523,128524
+    ,128525,128526,128536,128538,128540,128541,128568,128569,128570,128571,128572 ,128573
+    ,128584,128585,128586 #cats
+    ,128587,128588,128591 #monkeys
+    ,10084,10083,10085,10086,10087 #black hearts
+    ,128153,128154,128155,128156,128157,128158 #hearts blue
+    ,128147,128148,128149,128150,128151,128152 #hearts
+    ,128163,128139,128140,128143,128132,128131,128112,128081,128076,128077 #others
+    ]
+neutral = [128527,128528,128530,128554,128555,128562,128563,128565,128566,128567,128582]
+anxiety = [128531,128532,128534]
+angry = [128542,128544,128545,128574,128581,128589,128590]
+sad = [128546,128547,128548,128549,128553,128557,128560,128575,128576]
+fear = [128552,128561]
+
 L = Instaloader()
 analyzer = initializeAnalyzer()  #sentiment analyzer
 knn_clf = train('TrainingDataset') #image knn classifier
 conn = sqlite3.connect('project/db.sqlite3') #Database
-print("Opened database successfully")
+#print("Opened database successfully")
 
 #exit(0)
 #######initializations
@@ -132,9 +150,18 @@ class Message:
         self.authorship = isauthor
 
 
-#one post usmanmaliktest
-SINCE = datetime(2017, 5, 1)    #yyyy-mm-dd
+'''#one post usmanmaliktest
+SINCE = datetime(2020, 5, 1)    #yyyy-mm-dd
 UNTIL = datetime(2020,6,1)
+'''
+#all posts in duration
+#Final
+#SINCE = datetime(2018, 8, 1)    #yyyy-mm-dd 2020-05-30
+#UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
+
+SINCE = datetime(2018, 10, 18)    #yyyy-mm-dd 18/10/18
+UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
+#UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
 
 def extract_information(profilename):
     #here create the basic model for user info; NPI is not here
@@ -153,6 +180,7 @@ def extract_information(profilename):
             "followers = " + str(followers) + "," \
             "following = " + str(followees) + "," \
             "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
+    print(upsql)
     cur = conn.cursor()
     cur.execute(upsql)
     conn.commit()
@@ -165,20 +193,27 @@ def extract_information(profilename):
     image_processed = False
     posts_processed = False
     posts = extract_posts(profile,profilepath)
+    print("posts extracted")
     posts_processed = process_posts(posts,profilename,id)
+    print(posts_processed)
 
-    ########## TO-DO ###########
+    ########## Image Processing ###########
     # Here check if record is already in DB then no need to train for images then
     #model_save_path = "./model/model.txt"
     #knn_clf = train('TrainingDataset',model_save_path)
-    image_processed = process_Images(profilename,id)#,model_save_path)
+
+    if(posts):
+        image_processed = process_Images(profilename,id)#,model_save_path)
+        print("images processed")
+    else:
+        image_processed == True
     if posts_processed == True and image_processed == True:
         upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
         cur = conn.cursor()
         cur.execute(upsql)
         conn.commit()
 
-
+    print(profilename + "complete")
 def extract_posts(profile,profilepath):
     # Obtain posts sorted w.r.t date
     '''
@@ -191,12 +226,12 @@ def extract_posts(profile,profilepath):
     counter = 0
     for post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
     #for post in posts_sorted_by_date:
-        print (post.caption)
+        #print (post.caption)
         json = L.download_post(post,profilepath)
         posts.append(post)
         counter += 1
         print(counter)
-    print(len(posts_sorted_by_date))
+    #print(len(posts_sorted_by_date))
     return posts
 
 ######################### Tone Analysis
@@ -213,7 +248,16 @@ def process_posts(posts,profilename,user_id):
     cmtlist = []
     hashtaglist = []
     for post in posts:
+        processed = False
         caption = post.caption
+        #if(caption.__contains__("Vaada kar ke gayi si aitvaar da but it’s bank holiday tmr")):
+        #    x = 10
+        if caption is None:
+            caption = 'No caption'
+        else:
+            if (caption.__contains__("'")):
+                import re
+                caption = re.sub('[^a-zA-Z0-9 \n\.]', '', caption)
         ##### priliminary information #####
         date = post.date #datetime
         posted_on = date.strftime('"%y/%m/%d"')
@@ -225,34 +269,38 @@ def process_posts(posts,profilename,user_id):
         #process mentions and hashtags
         mentions = process_mentions(post)
         hashtags = process_caption_tags(post) #str
-        print(hashtags)
+        #print(hashtags)
 
         #taggedusers
         tagged_users = process_tagged_users(post) #str
-        print(tagged_users)
+        #print(tagged_users)
 
         ##Inserting a post to database
         insql = "INSERT INTO application_posts (user_id,instagram,posted_on,post_url,hashtags,mentions,tagged_users,is_video,likes,caption ) " \
                 "VALUES ('%d','%s','%s','%s','%s','%s','%s','%s','%d','%s')" \
                 % (user_id,instagram,posted_on,post_url,hashtags,mentions,tagged_users,is_video,likes,caption)
-
+        print(insql)
         conn.execute(insql)
         conn.commit()
         #process comments
         if(post.comments > 0):
             cmtlist = process_comments(post,profilename)
-            outsql = "SELECT ID from application_posts WHERE post_url = '" + post_url + "';"
-            cursor = conn.execute(outsql)
-            id = -1
-            for row in cursor:
-                id = row[0]
-            return write_comments_db(cmtlist, profilename,id)
-
-    print('should update posts in db and then update processed as true')
+            if(cmtlist):
+                id = -1
+                outsql = "SELECT ID from application_posts WHERE post_url = '" + post_url + "';"
+                cursor = conn.execute(outsql)
+                for row in cursor:
+                    id = row[0]
+                processed = write_comments_db(cmtlist, profilename,id)
+            else:
+                print("No conversations found in "+insql)
+                processed = True
+    #print('should update posts in db and then update processed as true')
     return processed;
             #save this in database
 #write Comments to DB
 def write_comments_db(cmtlist, profilename,post_id):
+    processed = False
     message = cmtlist[0]
     posted_on = message.timestamp.strftime('"%y/%m/%d"')
     owner = message.owner
@@ -262,16 +310,20 @@ def write_comments_db(cmtlist, profilename,post_id):
     tag_used = message.is_tag_used
     likes = message.likes
     text = message.message
-
+    if (text.__contains__("'")):
+        import re
+        text = re.sub('[^a-zA-Z0-9 \n\.]', '', text)
     insql = "INSERT INTO application_comment (post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text) " \
                     "VALUES ('%d','%s','%s','%s','%s','%f','%s','%d','%s')" \
                     %(post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text)
-
+    print(insql)
     conn.execute(insql)
     conn.commit()
     reply_list = cmtlist[1]
     index = 0
+    processed = True
     while index < len(reply_list):
+        processed = False
         reply = reply_list[index]
         posted_on = reply.timestamp.strftime('"%y/%m/%d"')
         owner = reply.owner
@@ -281,15 +333,19 @@ def write_comments_db(cmtlist, profilename,post_id):
         tag_used = reply.is_tag_used
         likes = reply.likes
         text = reply.message
-
+        if (text.__contains__("'")):
+            import re
+            text = re.sub('[^a-zA-Z0-9 \n\.]', '', text)
         insql = "INSERT INTO application_comment (post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text) " \
                 "VALUES ('%d','%s','%s','%s','%s','%f','%s','%d','%s')" \
                 % (post_id, posted_on, owner, is_comment, sentiment, sscore, tag_used, likes, text)
 
+        print(insql)
         conn.execute(insql)
         conn.commit()
+        processed = True
         index += 1
-    return True
+    return processed
 ##Process mentions
 def process_mentions(post):
     mentions = post.caption_mentions
@@ -368,6 +424,7 @@ def process_comments(post,profilename):
             convlist.append(replyList)
             process_conversations_emotions(convlist)
             return convlist
+    print ("cmtlist:" , cmtlist)
     return cmtlist;
 
 def extractTone(dict_element):
@@ -375,47 +432,72 @@ def extractTone(dict_element):
     sentiment = dict_element.get('tone_name')
     score = dict_element.get('score')
     return text,score,sentiment
+def process_as_list(result,convlist):
+    ########### each message is a conversation here
+    # fill tones in emotions
+    comment = convlist[0]
+    tone_analysis = result[0].pop();
+    text, score, sentiment = extractTone(tone_analysis)
+    if (text and score == -1000):
+        comment.sentiment = "Neutral"
+        comment.compscore = 0.0
+    else:
+        comment.sentiment = sentiment
+        comment.compscore = score
 
-def process_conversations_emotions(convlist):
-    #INPUT: convlist contain messages with author details
-    #OUTPT: convlist with emotions
-    message = convlist[0]
-    #making single conversation => saving API calls
-    conv = message.message + ". <br>. "
-    replies = convlist[1]
-    for reply in replies:
-        #print(reply.message)
-        conv = conv + reply.message + ". <br>. "
+    i = 1;
+    while i < len(result):
+        tone_analysis = result[i].pop()
+        # tone_analysis = convlist[i]
+        text, score, sentiment = extractTone(tone_analysis)
+        reply = convlist[1][i - 1]
+        if (text and score == -1000):
+            reply.sentiment = "Neutral"
+            reply.compscore = 0.0
+        else:
+            reply.sentiment = sentiment
+            reply.compscore = score
+        i += 1
 
-    result = processTexts(conv)
+def process_as_dict(result,convlist):
+    ########### This function makes conversation (using multi sentences in a message)
 
-    ##############iteration of results
     # making one message
     removeitem = [{
         'text': "<br>.",
         'score': -1000,
         'tone_name': ''}]
-
+    newline = False
     index = 0;
     length = len(result)
     sentences = []
     sentence = []
     while (index < length):
         item = result[index]
-        if (item == removeitem):
-            sentences.append(sentence)
-            sentence = []
+        if index == 5:
+            x = 10
+        if (item[0].get('text').__contains__("<br>")):
+                newline = True
+                if sentence:
+                    sentences.append(sentence)
+                    sentence = []
+                    newline = False
+                value = item[0].get('text').replace("<br>.", "")
+                if value != '':
+                    value = item.pop(0)
+                    sentence.append(value)
         else:
-            value = item.pop(0)
-            sentence.append(value)
+                value = item.pop(0)
+                sentence.append(value)
+
+        if newline:
+                sentences.append(sentence)
+                sentence = []
+                newline = False
         index += 1
+    sentences.append(sentence)
     # Analytical	Anger	Fear	Joy	Sadness	Tentative	Confident	Positive	Negative	Neutral
     Emotions = ['Anger', 'Fear', 'Joy', 'Sadness', 'Disgust']
-    Style = ['Analytical', 'Confident', 'Tentative']
-
-    '''for msg in sentences:
-        print(msg)
-    '''
 
     ########### making conversation
     #extracting one emotion for a conversation
@@ -428,10 +510,10 @@ def process_conversations_emotions(convlist):
         message_result['score'] = message.get('score')
         message_result['tone_name'] = message.get('tone_name')
         message_result['text'] = message.get('text')
-        index = 1
+        index = 1   #get replies
         while index < len(msgslist):
             dic = msgslist[index];
-            # message = {key: message.get(key,' ')+dic[key] for key in dic.keys()}
+            # merger multiple sentences
             if (dic['tone_name'] in Emotions):
                 message_result['score'] = dic['score']
                 message_result['tone_name'] = dic['tone_name']
@@ -452,18 +534,65 @@ def process_conversations_emotions(convlist):
         comment.sentiment = sentiment
         comment.compscore = score
 
-    i = 1;
-    while i < len(convlist):
-        tone_analysis = conversation[i]
-        text,score,sentiment = extractTone(tone_analysis)
-        reply = convlist[1][i - 1]
-        if(text and score == -1000):
-            reply.sentiment = "Neutral"
-            reply.compscore = 0.0
+    i = 0;
+    if len(convlist) > 1:
+        replies = convlist[1]
+        for reply in replies:
+            tone_analysis = conversation[i+1]
+            text,score,sentiment = extractTone(tone_analysis)
+            if(text and score == -1000):
+                reply.sentiment = "Neutral"
+                reply.compscore = 0.0
+            else:
+                reply.sentiment = sentiment
+                reply.compscore = score
+            i += 1
+def process_text(text):
+    import re
+    mention_regex = re.compile(r"(?:@)(\w(?:(?:\w|(?:\.(?!\.))){0,28}(?:\w))?)")
+    item = re.findall(mention_regex, text.lower())
+    str = text
+    for i in item:
+        str = str.replace(i, "")
+    return str.replace("@", "")
+
+
+def process_conversations_emotions(convlist):
+    #INPUT: convlist contain messages with author details
+    #OUTPT: convlist with emotions
+    import re
+    message = convlist[0]
+    text = message.message
+    if(text.__contains__("@")):
+        text = process_text(text)
+    #making single conversation => saving API calls
+    #conv = message.message + ". <br>. "
+    conv = text + ". <br>. "
+    replies = convlist[1]
+    ch = ''
+    for reply in replies:
+        #print(reply.message)
+        text = reply.message
+        if (text.__contains__('@')):
+            text = process_text(text)
+        val = text.strip()
+        if text and val:
+                ch = text[-1]
         else:
-            reply.sentiment = sentiment
-            reply.compscore = score
-        i += 1
+            text = "I am neutral"
+        if(ch == '.'):#eliminating last fullstop
+            text = text[0:text.__len__() - 1]
+        conv = conv + text + ". <br>. "
+        #conv = conv + reply.message + ". <br>. "
+    takelastout = len(conv)- 6
+    conv = conv[0:takelastout]
+    result = processTexts(conv)
+
+    ##############iteration of results
+    if(len(convlist) == len(result)):
+        process_as_list(result,convlist)
+    else:
+        process_as_dict(result,convlist)
 
 def Taggedcomment(text):
     hindex = -1;
@@ -473,10 +602,33 @@ def Taggedcomment(text):
     else:
         return False;
 
+def checkemoji(text):
+    for ch in text:
+       ord_value = ord(ch)
+       if(happy.__contains__(ord_value)):
+            return "Happy",0.8
+       else:
+            if (neutral.__contains__(ord_value)):
+                return "Neutral",0.0
+            else:
+                if (anxiety.__contains__(ord_value)):
+                    return "Anxiety",-0.1
+                else:
+                    if (angry.__contains__(ord_value)):
+                        return "Angry",-0.8
+                    else:
+                        if (sad.__contains__(ord_value)):
+                            return "Sad",-0.4
+                        else:
+                            if (fear.__contains__(ord_value)):
+                                return "Tentative",0.0
+    return "no_emoji", 0.0
+
 def extract_tone_correspondence(sentence):
     phrase = ''
     tone_name = ''
     score = -1000
+
 
     for key, value in sentence.items():
         if(key == 'text'):
@@ -486,11 +638,26 @@ def extract_tone_correspondence(sentence):
             for item in tone_list:
               tone_name = item.pop('tone_name')
               score = item.pop('score')
+    if (score == -1000):
+        vs = vanalyzer.polarity_scores(phrase)
+        score = vs['compound']
+        if (score >= 0.05):
+            tone_name = "Positive"
+        else:
+            if (score > -0.05 and score < 0.05):
+                tone_name, score = checkemoji(phrase)
+                if(tone_name == 'no_emoji'):
+                    tone_name = "Neutral"
+            else:
+                if (score <= -0.05):
+                    tone_name = "Negative"
     jsonobject = [{
         "text": phrase,
         "tone_name" : tone_name,
         "score": score
     }]
+
+
     return jsonobject;
 
 def processTexts(text):
@@ -561,7 +728,7 @@ def process_Images(profilename,instagram):#,model_save_path):
                            row = [date, False, 'Others', profilename + "/" + img_path];
                            image_details_list.append(row)
 
-    #print(image_details_list)
+    print(image_details_list)
     flag = write_image_details_db(image_details_list,instagram)
     return flag
 
@@ -585,7 +752,7 @@ def write_image_details_db(image_details_list,instagram):
         insql = "INSERT INTO application_picture (instagram,posted_on,selfie,person,image_path ) " \
                 "VALUES ('%s','%s','%s','%s','%s')" \
                 %(instagram, posted_on, selfie, person, image_path)
-
+        print(insql)
         conn.execute(insql)
         conn.commit()
     return True
@@ -635,15 +802,24 @@ import os
 import pathlib
 
 def startjob():
-    print("starting")
-    list = ["diipakhosla","nadiamaya_","annam.ahmad"]
+    list = ["annam.ahmad"]
+    processed = False
     for instagram in list:
-        insql = "INSERT INTO application_users (instagram,state) " \
-        "VALUES ('%s','pending')" \
-        % (instagram)
-        conn.execute(insql)
-        conn.commit()
-        extract_information(instagram)
+        print(instagram)
+        cursor = conn.execute("SELECT state from application_users WHERE instagram ='" + instagram + "';")
+        for row in cursor:
+            status = row[0]
+            if (status == 'pending'):
+                extract_information(instagram)
+            processed = True
+        if(processed == False):
+            insql = "INSERT INTO application_users (instagram,state) " \
+                   "VALUES ('%s','pending')" \
+                    % (instagram)
+            print(insql)
+            conn.execute(insql)
+            conn.commit()
+            extract_information(instagram)
 
 
 if __name__ == '__main__':
