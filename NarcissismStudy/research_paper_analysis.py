@@ -98,19 +98,19 @@ def train(train_dir, model_save_path = "", n_neighbors = None, knn_algo = 'ball_
 
 #######initializations
 #ref: https://www.codetable.net/unicodecharacters?page=89
+#ref: https://www.codetable.net/unicodecharacters?page=89
 happy = [128513,128514,128515,128516,128517,128518,128519,128520,128521,128522,128523,128524
     ,128525,128526,128536,128538,128540,128541,128568,128569,128570,128571,128572 ,128573
     ,128584,128585,128586 #cats
     ,128587,128588,128591 #monkeys
     ,10084,10083,10085,10086,10087 #black hearts
-    ,128153,128154,128155,128156,128157,128158 #hearts blue
-    ,128147,128148,128149,128150,128151,128152 #hearts
-    ,128163,128139,128140,128143,128132,128131,128112,128081,128076,128077 #others
+    ,128293,128076,128079
     ]
-neutral = [128527,128528,128530,128554,128555,128562,128563,128565,128566,128567,128582]
+neutral = [128527,128528,128530,128554,128555,128562,128563,128565,128566,128567,128582
+    ,128070,128071,128072,128073]
 anxiety = [128531,128532,128534]
 angry = [128542,128544,128545,128574,128581,128589,128590]
-sad = [128546,128547,128548,128549,128553,128557,128560,128575,128576]
+sad = [128546,128547,128548,128549,128553,128557,128560,128575,128576,128078]
 fear = [128552,128561]
 
 L = Instaloader()
@@ -156,12 +156,12 @@ UNTIL = datetime(2020,6,1)
 '''
 #all posts in duration
 #Final
-#SINCE = datetime(2018, 8, 1)    #yyyy-mm-dd 2020-05-30
+SINCE = datetime(2018, 8, 1)    #yyyy-mm-dd 2020-05-30
+UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
+#Debugging
+#SINCE = datetime(2018, 10, 18)    #yyyy-mm-dd 18/10/18
 #UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
 
-SINCE = datetime(2018, 10, 18)    #yyyy-mm-dd 18/10/18
-UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
-#UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
 
 def extract_information(profilename):
     #here create the basic model for user info; NPI is not here
@@ -606,7 +606,7 @@ def checkemoji(text):
     for ch in text:
        ord_value = ord(ch)
        if(happy.__contains__(ord_value)):
-            return "Happy",0.8
+            return "Joy",0.8
        else:
             if (neutral.__contains__(ord_value)):
                 return "Neutral",0.0
@@ -622,7 +622,20 @@ def checkemoji(text):
                         else:
                             if (fear.__contains__(ord_value)):
                                 return "Tentative",0.0
-    return "no_emoji", 0.0
+    return "no_emoji",-1000
+
+def vader_tone(text):
+    vs = vanalyzer.polarity_scores(text)
+    score = vs['compound']
+    if (score >= 0.05):
+        tone_name = "Positive"
+    else:
+        if (score > -0.05 and score < 0.05):
+            tone_name, score = checkemoji(text)
+        else:
+            if (score <= -0.05):
+                tone_name = "Negative"
+    return tone_name,score
 
 def extract_tone_correspondence(sentence):
     phrase = ''
@@ -638,19 +651,17 @@ def extract_tone_correspondence(sentence):
             for item in tone_list:
               tone_name = item.pop('tone_name')
               score = item.pop('score')
+    if (phrase.__contains__('fuck')):
+        text = phrase.replace('fuck', '')
+        tone, sscore = vader_tone(text)
+        #tone2,score2 = checkemoji(text)
+        if (sscore > -0.05):
+            tone_name = 'Joy'
+            score = 0.8
+    if (phrase.__contains__('fierce')):
+        tone_name, score = checkemoji(phrase)
     if (score == -1000):
-        vs = vanalyzer.polarity_scores(phrase)
-        score = vs['compound']
-        if (score >= 0.05):
-            tone_name = "Positive"
-        else:
-            if (score > -0.05 and score < 0.05):
-                tone_name, score = checkemoji(phrase)
-                if(tone_name == 'no_emoji'):
-                    tone_name = "Neutral"
-            else:
-                if (score <= -0.05):
-                    tone_name = "Negative"
+        tone_name, score = vader_tone(phrase)
     jsonobject = [{
         "text": phrase,
         "tone_name" : tone_name,
@@ -802,7 +813,7 @@ import os
 import pathlib
 
 def startjob():
-    list = ["annam.ahmad"]
+    list = ["nadiamaya_","annam.ahmad"]#,"chloescantlebury","emilybahr","thearoberts","imymann"]
     processed = False
     for instagram in list:
         print(instagram)

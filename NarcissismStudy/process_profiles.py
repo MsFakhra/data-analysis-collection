@@ -7,12 +7,12 @@ for name in res:
      print(name[0])
 '''
 
+x = 10
 
 
 
 
 
-exit(0)
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 analyzer = SentimentIntensityAnalyzer()
 #ref: https://www.codetable.net/unicodecharacters?page=89
@@ -21,18 +21,20 @@ happy = [128513,128514,128515,128516,128517,128518,128519,128520,128521,128522,1
     ,128584,128585,128586 #cats
     ,128587,128588,128591 #monkeys
     ,10084,10083,10085,10086,10087 #black hearts
+    ,128293,128076,128079
     ]
-neutral = [128527,128528,128530,128554,128555,128562,128563,128565,128566,128567,128582]
+neutral = [128527,128528,128530,128554,128555,128562,128563,128565,128566,128567,128582
+    ,128070,128071,128072,128073]
 anxiety = [128531,128532,128534]
 angry = [128542,128544,128545,128574,128581,128589,128590]
-sad = [128546,128547,128548,128549,128553,128557,128560,128575,128576]
+sad = [128546,128547,128548,128549,128553,128557,128560,128575,128576,128078]
 fear = [128552,128561]
 
 def checkemoji(text):
     for ch in text:
        ord_value = ord(ch)
        if(happy.__contains__(ord_value)):
-            return "Happy",0.8
+            return "Joy",0.8
        else:
             if (neutral.__contains__(ord_value)):
                 return "Neutral",0.0
@@ -49,18 +51,28 @@ def checkemoji(text):
                             if (fear.__contains__(ord_value)):
                                 return "Tentative",0.0
     return "no_emoji",0.0
-
-text = '@mahee2000 love this ❤️ more love, less hate'
-#text = '🙈❤️.'
-
-vs = analyzer.polarity_scores(text)
-score = vs['compound']
-if (score >= 0.05):
-    tone_name = "Positive"
-else:
-    if(score > -0.05 and score < 0.05):
-        tone_name,score = checkemoji(text)
+def vader_tone(text):
+    vs = analyzer.polarity_scores(text)
+    score = vs['compound']
+    if (score >= 0.05):
+        tone_name = "Positive"
     else:
-        if(score <= -0.05):
-            tone_name = "Negative"
+        if (score > -0.05 and score < 0.05):
+            tone_name, score = checkemoji(text)
+        else:
+            if (score <= -0.05):
+                tone_name = "Negative"
+    return tone_name,score
+
+#text = '@mahee2000 fierce as fuck 🔥'
+text = 'fuck i love you'
+
+if(text.__contains__('fuck')):
+    text = text.replace('fuck', '')
+if(text.__contains__('fierce')):
+    tone_name, score = checkemoji(text)
+    if(tone_name == "no_emoji"):
+        tone_name,score = vader_tone(text)
+else:
+    tone_name,score = vader_tone(text)
 print(tone_name + str(score))
