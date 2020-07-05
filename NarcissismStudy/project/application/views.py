@@ -2,11 +2,15 @@ import json
 import os
 import pathlib
 import datetime
+
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render
 from application.models import Users,Posts
 from .tasks import extract_information
 from .tasks import process_Images
+
+import sqlite3
 
 def index(request):
     return render(request, 'index.html', {})
@@ -42,9 +46,8 @@ def handle_uploaded_file(f,instagram):
 
 ###### Projecting the data from the database
 
-def results(request):
-    #AIM: database extraction of objects
-    user = Users.objects.get(instagram = 'msfranky_elf_juli')
+def profile_results(request):
+    user = Users.objects.get(instagram='annam.ahmad')
 
     id = user.id
     full_name = user.full_name
@@ -64,46 +67,15 @@ def results(request):
         "followers": followers,
         "following": following
     }
+    #obj = Posts.objects.filter(user_id= id)#1792)  # https://www.youtube.com/watch?v=vCX6Tpb9sP8
+    obj = Posts.objects.filter(id= 1792)
+    '''context = {
+        "instagram": obj.instagram,
+        "caption": obj.caption,
+        "posted_on": obj.posted_on,
+        "post_url": obj.post_url,
+        "hashtags": obj.hashtags
+    }'''
+    context = {"object":obj}
 
-    queryset = Posts.objects.filter(user_id = id)
-    posts = []
-    for entry in queryset:
-        post = {
-            "instagram" : entry.instagram,
-            "posted_on" : entry.posted_on,
-            "post_url" : entry.post_url,
-            "hashtags" : entry.hashtags,
-            "mentions" : entry.mentions,
-            "tagged_users" : entry.tagged_users,
-            "is_video" : entry.is_video,
-            "likes" : entry.likes,
-            "caption" : entry.caption
-        }
-        posts.append(post)
-
-
-    return HttpResponse(json.dumps(profile))
-    #return HttpResponse({'Data': json.dumps(posts)})
-
-'''
-data = []
-    queryset = Posted.objects.all()
-    for entry in queryset:
-        name = entry.profilename.profilename
-        if(name == "test"): #this is the object / record in the database
-            profile = {     #getting data from queryset
-                "name"  : name,
-                "date"  : entry.date,
-                "anger" : entry.anger,
-                "fear"  :entry.fear,
-                "joy"   :entry.joy,
-                "sadness":entry.sadness,
-                "disgust": entry.disgust,
-                "neutral": entry.neutral,
-                "positive": entry.positive,
-                "negative": entry.negaitive
-            }
-            data.append(profile)
-
-    context = {'Data': json.dumps(data)}
-    return render(request,"basicinfo.html",context = context)'''
+    return render(request, "profile_results.html", context)
