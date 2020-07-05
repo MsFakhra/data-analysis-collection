@@ -2,6 +2,8 @@ import json
 import os
 import pathlib
 import datetime
+
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render
 from application.models import Users,Posts
@@ -42,9 +44,9 @@ def handle_uploaded_file(f,instagram):
 
 ###### Projecting the data from the database
 
-def results(request):
+def profile_results(request):
     #AIM: database extraction of objects
-    user = Users.objects.get(instagram = 'msfranky_elf_juli')
+    user = Users.objects.get(instagram = 'annam.ahmad')
 
     id = user.id
     full_name = user.full_name
@@ -64,8 +66,32 @@ def results(request):
         "followers": followers,
         "following": following
     }
+    obj = Posts.objects.filter(id=2401)  #https://www.youtube.com/watch?v=vCX6Tpb9sP8
 
-    queryset = Posts.objects.filter(user_id = id)
+    context = {
+        "instagram" : obj.instagram,
+        "caption"   : obj.caption,
+        "posted_on" : obj.posted_on,
+        "post_url" : obj.post_url,
+        "hashtags" : obj.hashtags
+    }
+
+    return render(request,"profile_results.html",context)
+    #queryset = Posts.objects.filter(user_id = id)
+    #return HttpResponse(json.dumps(profile))
+
+
+    '''
+    queryset = Posts.objects.all().values('posted_on').annotate(count=Count('posted_on')).filter(user_id=id)
+    rec = []
+    for entry in queryset:
+        rec.append(entry['posted_on'])
+        
+        
+        
+    
+    queryset = Posts.objects.values('posted_on').annotate(count=Count(Posts.objects)).filter(user_id=id)
+
     posts = []
     for entry in queryset:
         post = {
@@ -80,9 +106,9 @@ def results(request):
             "caption" : entry.caption
         }
         posts.append(post)
+    '''
 
-
-    return HttpResponse(json.dumps(profile))
+    #return HttpResponse(json.dumps(profile))
     #return HttpResponse({'Data': json.dumps(posts)})
 
 '''

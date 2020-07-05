@@ -813,7 +813,9 @@ import os
 import pathlib
 
 def startjob():
-    list = ["nadiamaya_","annam.ahmad"]#,"chloescantlebury","emilybahr","thearoberts","imymann"]
+    list = ["gabbywatkins_", "lisa_nolan", "amelia_goodman"]
+    done = ["nadiamaya_","annam.ahmad","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
+
     processed = False
     for instagram in list:
         print(instagram)
