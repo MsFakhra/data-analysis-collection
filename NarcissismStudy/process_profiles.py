@@ -1,13 +1,42 @@
 import sqlite3
 conn = sqlite3.connect('project/db.sqlite3')
 
-'''print("Opened database successfully")
+print("Opened database successfully")
 res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 for name in res:
      print(name[0])
-'''
 
-x = 10
+
+
+x = 51
+bio = 'hello'
+profile = 'usmanmaliktest'
+from datetime import datetime
+date1 = datetime.today().strftime('%m-%d-%y') #2020-06-03
+
+date1 = datetime.today()
+date = date1.strftime('"%y/%m/%d"')
+
+date_str = '31-12-2017' # The date - 29 Dec 2017
+format_str = '%d-%m-%Y' # The format
+datetime_obj = datetime.strptime(date_str, format_str)
+date = datetime_obj.strftime('"%y/%m/%d"')
+
+'''insql = "INSERT INTO application_picture (instagram,posted_on,selfie,person,image_path ) VALUES ('%s','%s','False','Others','usmanmaliktest/2020-05-26_10-12-54_UTC_1.jpg')"\
+        %(profile,datetime_obj)
+
+print(insql)
+conn.execute(insql)
+conn.commit()'''
+
+cursor = conn.execute("SELECT * from application_pictures WHERE instagram = '" + 'usmanmaliktest' + "';")
+for row in cursor:
+    print("application_users ID = ", row)
+
+
+
+
+exit(0)
 
 
 

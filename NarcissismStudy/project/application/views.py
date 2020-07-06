@@ -6,7 +6,7 @@ import datetime
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render
-from application.models import Users,Posts
+from application.models import Users,Posts,Picture
 from .tasks import extract_information
 from .tasks import process_Images
 
@@ -45,6 +45,17 @@ def handle_uploaded_file(f,instagram):
 ###### Projecting the data from the database
 
 def profile_results(request):
+    pics = Picture.objects.all()
+    for p in pics:
+        print(p.posted_on)
+    return HttpResponse("done")
+
+
+
+
+
+
+
     #AIM: database extraction of objects
     user = Users.objects.get(instagram = 'annam.ahmad')
 
