@@ -14,16 +14,16 @@ def index(request):
     return render(request, 'index.html', {})
 
 def step2(request):
-    # instagram = request.POST['instagram']
-    # user = Users(
-    #     full_name = request.POST['full_name'],
-    #     email = request.POST['email'],
-    #     instagram = request.POST['instagram'],
-    #     created_at = datetime.datetime.now(),
-    # )
-    # user.save()
+    instagram = request.POST['instagram']
+    user = Users(
+        full_name = request.POST['full_name'],
+        email = request.POST['email'],
+        instagram = request.POST['instagram'],
+        created_at = datetime.datetime.now(),
+    )
+    user.save()
 
-    # handle_uploaded_file(request.FILES['selfie'],instagram)
+    handle_uploaded_file(request.FILES['selfie'],instagram)
     questionList = [
         ['I have a natural talent for influencing people.', 'I am not good at influencing people.'],
         ['Modesty doesn\'t become me.', 'I am essentially a modest person.'],
@@ -91,11 +91,6 @@ def profile_results(request):
     for p in pics:
         print(p.posted_on)
     return HttpResponse("done")
-
-
-
-
-
 
 
     #AIM: database extraction of objects
