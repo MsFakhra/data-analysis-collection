@@ -259,8 +259,8 @@ def process_posts(posts,profilename,user_id):
                 import re
                 caption = re.sub('[^a-zA-Z0-9 \n\.]', '', caption)
         ##### priliminary information #####
-        date = post.date #datetime
-        posted_on = date.strftime('"%y/%m/%d"')
+        datetime_object = post.date #datetime
+        posted_on = datetime_object.strftime('"%y/%m/%d"')
         post_url = post.url #str
          #str
         is_video = post.is_video #bool
@@ -278,7 +278,7 @@ def process_posts(posts,profilename,user_id):
         ##Inserting a post to database
         insql = "INSERT INTO application_posts (user_id,instagram,posted_on,post_url,hashtags,mentions,tagged_users,is_video,likes,caption ) " \
                 "VALUES ('%d','%s','%s','%s','%s','%s','%s','%s','%d','%s')" \
-                % (user_id,instagram,posted_on,post_url,hashtags,mentions,tagged_users,is_video,likes,caption)
+                % (user_id,instagram,datetime_object,post_url,hashtags,mentions,tagged_users,is_video,likes,caption)
         print(insql)
         conn.execute(insql)
         conn.commit()
@@ -302,6 +302,7 @@ def process_posts(posts,profilename,user_id):
 def write_comments_db(cmtlist, profilename,post_id):
     processed = False
     message = cmtlist[0]
+    datetime_object = message.timestamp
     posted_on = message.timestamp.strftime('"%y/%m/%d"')
     owner = message.owner
     is_comment = message.iscomment
@@ -315,7 +316,7 @@ def write_comments_db(cmtlist, profilename,post_id):
         text = re.sub('[^a-zA-Z0-9 \n\.]', '', text)
     insql = "INSERT INTO application_comment (post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text) " \
                     "VALUES ('%d','%s','%s','%s','%s','%f','%s','%d','%s')" \
-                    %(post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text)
+                    %(post_id,datetime_object,owner,is_comment,sentiment,sscore,tag_used,likes,text)
     print(insql)
     conn.execute(insql)
     conn.commit()
@@ -325,6 +326,7 @@ def write_comments_db(cmtlist, profilename,post_id):
     while index < len(reply_list):
         processed = False
         reply = reply_list[index]
+        datetime_object = reply.timestamp
         posted_on = reply.timestamp.strftime('"%y/%m/%d"')
         owner = reply.owner
         is_comment = reply.iscomment
@@ -338,7 +340,7 @@ def write_comments_db(cmtlist, profilename,post_id):
             text = re.sub('[^a-zA-Z0-9 \n\.]', '', text)
         insql = "INSERT INTO application_comment (post_id,posted_on,owner,is_comment,sentiment,sscore,tag_used,likes,text) " \
                 "VALUES ('%d','%s','%s','%s','%s','%f','%s','%d','%s')" \
-                % (post_id, posted_on, owner, is_comment, sentiment, sscore, tag_used, likes, text)
+                % (post_id, datetime_object, owner, is_comment, sentiment, sscore, tag_used, likes, text)
 
         print(insql)
         conn.execute(insql)
@@ -762,7 +764,7 @@ def write_image_details_db(image_details_list,instagram):
         ##Inserting a post to database
         insql = "INSERT INTO application_picture (instagram,posted_on,selfie,person,image_path ) " \
                 "VALUES ('%s','%s','%s','%s','%s')" \
-                %(instagram, posted_on, selfie, person, image_path)
+                %(instagram, datetime_obj, selfie, person, image_path)
         print(insql)
         conn.execute(insql)
         conn.commit()
@@ -813,7 +815,7 @@ import os
 import pathlib
 
 def startjob():
-    list = ["gabbywatkins_", "lisa_nolan", "amelia_goodman"]
+    list = ["lisa_nolan", "amelia_goodman"]
     done = ["nadiamaya_","annam.ahmad","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
 
     processed = False
@@ -826,9 +828,9 @@ def startjob():
                 extract_information(instagram)
             processed = True
         if(processed == False):
-            insql = "INSERT INTO application_users (instagram,state) " \
-                   "VALUES ('%s','pending')" \
-                    % (instagram)
+            insql = "INSERT INTO application_users (instagram,state,created_at) " \
+                   "VALUES ('%s','pending','%s')" \
+                    % (instagram,datetime.now())
             print(insql)
             conn.execute(insql)
             conn.commit()

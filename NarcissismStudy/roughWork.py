@@ -13,7 +13,33 @@ insql = "INSERT INTO application_users (instagram,state) " \
 conn.execute(insql)
 conn.commit()
 
+x = 51
+bio = 'hello'
+profile = 'usmanmaliktest'
+from datetime import datetime
+date1 = datetime.today().strftime('%m-%d-%y') #2020-06-03
 
+date1 = datetime.today()
+date = date1.strftime('"%y/%m/%d"')
+
+date_str = '31-12-2017' # The date - 29 Dec 2017
+format_str = '%d-%m-%Y' # The format
+datetime_obj = datetime.strptime(date_str, format_str)
+date = datetime_obj.strftime('"%y/%m/%d"')
+
+
+date_str = '2018-12-17' # The date - 29 Dec 2017
+format_str = '%Y-%m-%d' # The format
+datetime_obj = datetime.strptime(date_str, format_str)
+date = datetime_obj.strftime('"%y/%m/%d"')
+
+
+
+insql = "INSERT INTO application_picture (instagram,posted_on,selfie,person,image_path ) VALUES ('31','20/05/26','False','Others','usmanmaliktest/2020-05-26_10-12-54_UTC_1.jpg')"
+
+print(insql)
+conn.execute(insql)
+conn.commit()
 
 ''''cursor = conn.execute("SELECT ID from application_posts")
 for row in cursor:
