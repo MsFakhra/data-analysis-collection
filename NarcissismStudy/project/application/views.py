@@ -17,16 +17,17 @@ def index(request):
     return render(request, 'index.html', {})
 
 def step2(request):
-    # instagram = request.POST['instagram']
-    # user = Users(
-    #     full_name = request.POST['full_name'],
-    #     email = request.POST['email'],
-    #     instagram = request.POST['instagram'],
-    #     created_at = datetime.datetime.now(),
-    # )
-    # user.save()
-    #
-    # handle_uploaded_file(request.FILES['selfie'],instagram)
+    instagram = request.POST['instagram']
+    user = Users(
+        full_name = request.POST['full_name'],
+        email = request.POST['email'],
+        instagram = request.POST['instagram'],
+        created_at = datetime.datetime.now(),
+    )
+    user.save()
+    request.session['user'] = user.id
+
+    handle_uploaded_file(request.FILES['selfie'],instagram)
     questionList = [
         ['I have a natural talent for influencing people.', 'I am not good at influencing people.', '1', '0'],
         ['Modesty doesn\'t become me.', 'I am essentially a modest person.', '1', '0'],
@@ -69,16 +70,20 @@ def step2(request):
         ['I am more capable than other people.', 'There is a lot that I can learn from other people.', '1', '0'],
         ['I am much like everybody else.', 'I am an extraordinary person.', '0', '1'],
     ]
+
     return render(request, 'step2.html', {'questionList':  questionList})
 
 def thankyou(request):
     i=1;
     score=0
     while i < 41:
-        score += int(request.POST['question_' + str(i)])
+        if 'question_' + str(i) in request.POST:
+            score += int(request.POST['question_' + str(i)])
         i+=1
-    print(score)
 
+    user = Users.objects.get(id=request.session['user'])
+    user.npi_score = score
+    user.save()
     return render(request, 'thankyou.html', {'score': score})
 
 def handle_uploaded_file(f,instagram):
