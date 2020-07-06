@@ -4,6 +4,7 @@ import pathlib
 import datetime
 
 from django.db.models import Count
+from django.db.models.functions import TruncMonth, TruncYear
 from django.http import HttpResponse
 from django.shortcuts import render
 from application.models import Users,Posts,Picture
@@ -89,18 +90,8 @@ def handle_uploaded_file(f,instagram):
 ###### Projecting the data from the database
 
 def profile_results(request):
-<<<<<<< HEAD
-    user = Users.objects.get(instagram='annam.ahmad')
-=======
-    pics = Picture.objects.all()
-    for p in pics:
-        print(p.posted_on)
-    return HttpResponse("done")
-
-
-    #AIM: database extraction of objects
-    user = Users.objects.get(instagram = 'annam.ahmad')
->>>>>>> a0c7b29b83e6330cf254b8141db0fcab33ea20b3
+    instagram = 'amelia_goodman'
+    user = Users.objects.get(instagram = instagram)
 
     id = user.id
     full_name = user.full_name
@@ -120,9 +111,12 @@ def profile_results(request):
         "followers": followers,
         "following": following
     }
-<<<<<<< HEAD
     #obj = Posts.objects.filter(user_id= id)#1792)  # https://www.youtube.com/watch?v=vCX6Tpb9sP8
-    obj = Posts.objects.filter(id= 1792)
+
+    #obj = Posts.objects.values('posted_on').annotate(month = TruncMonth('posted_on'),year = TruncYear('posted_on')).filter(user_id= id)
+    objs = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
+    for o in objs:
+        print(o)
     '''context = {
         "instagram": obj.instagram,
         "caption": obj.caption,
@@ -130,54 +124,12 @@ def profile_results(request):
         "post_url": obj.post_url,
         "hashtags": obj.hashtags
     }'''
-    context = {"object":obj}
+    context = {
+        "user":user,
+        "objects":objs}
 
     return render(request, "profile_results.html", context)
-=======
-    obj = Posts.objects.filter(id=2401)  #https://www.youtube.com/watch?v=vCX6Tpb9sP8
 
-    context = {
-        "instagram" : obj.instagram,
-        "caption"   : obj.caption,
-        "posted_on" : obj.posted_on,
-        "post_url" : obj.post_url,
-        "hashtags" : obj.hashtags
-    }
-
-    return render(request,"profile_results.html",context)
-    #queryset = Posts.objects.filter(user_id = id)
-    #return HttpResponse(json.dumps(profile))
-
-
-    '''
-    queryset = Posts.objects.all().values('posted_on').annotate(count=Count('posted_on')).filter(user_id=id)
-    rec = []
-    for entry in queryset:
-        rec.append(entry['posted_on'])
-        
-        
-        
-    
-    queryset = Posts.objects.values('posted_on').annotate(count=Count(Posts.objects)).filter(user_id=id)
-
-    posts = []
-    for entry in queryset:
-        post = {
-            "instagram" : entry.instagram,
-            "posted_on" : entry.posted_on,
-            "post_url" : entry.post_url,
-            "hashtags" : entry.hashtags,
-            "mentions" : entry.mentions,
-            "tagged_users" : entry.tagged_users,
-            "is_video" : entry.is_video,
-            "likes" : entry.likes,
-            "caption" : entry.caption
-        }
-        posts.append(post)
-    '''
-
-    #return HttpResponse(json.dumps(profile))
-    #return HttpResponse({'Data': json.dumps(posts)})
 
 def test(request):
     allUsers = Users.objects.all()
@@ -185,27 +137,3 @@ def test(request):
         print(user.created_at)
 
     return render(request, 'test.html', {'users': allUsers})
-
-'''
-data = []
-    queryset = Posted.objects.all()
-    for entry in queryset:
-        name = entry.profilename.profilename
-        if(name == "test"): #this is the object / record in the database
-            profile = {     #getting data from queryset
-                "name"  : name,
-                "date"  : entry.date,
-                "anger" : entry.anger,
-                "fear"  :entry.fear,
-                "joy"   :entry.joy,
-                "sadness":entry.sadness,
-                "disgust": entry.disgust,
-                "neutral": entry.neutral,
-                "positive": entry.positive,
-                "negative": entry.negaitive
-            }
-            data.append(profile)
-
-    context = {'Data': json.dumps(data)}
-    return render(request,"basicinfo.html",context = context)'''
->>>>>>> a0c7b29b83e6330cf254b8141db0fcab33ea20b3

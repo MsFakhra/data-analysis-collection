@@ -1,14 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
-
+{% load staticfiles%}
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-  <h1 class="display-4">Profile Results  </h1>
-  <p class="lead">Some Information about the project should go here !! </p>
+  <h1 class="display-4">{{user.full_name}}  </h1>
+  <p class="lead">{{user.instagram}}</p>
+    <p>
+    <!--npi_score = user.npi_score <br>-->
+    Biography : {{user.biography}}<br>
+    Media count : {{user.media_count}}<br>
+    Followers : {{user.followers}}<br>
+    Following : {{user.following}}</p>
+    <hr>
 </div>
 
 <div class="container">
-    Output
-    <p>{{caption}}</p>
+    {% for obj in objects %}
+  <p>{{ obj.total }}</p>
+    {% endfor %}
 </div>
+<!--  Displaying line graph  -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Year', 'Sales', 'Expenses'],
+          ['2004',  1000,      400],
+          ['2005',  1170,      460],
+          ['2006',  660,       1120],
+          ['2007',  1030,      540]
+        ]);
+
+        var options = {
+          title: 'Company Performance',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+  <!--  Displaying line graph  -->
+<div id="curve_chart" style="width: 900px; height: 500px"></div>
 
 {% endblock %}
