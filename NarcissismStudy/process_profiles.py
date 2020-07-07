@@ -1,11 +1,67 @@
 import sqlite3
 conn = sqlite3.connect('project/db.sqlite3')
 
-print("Opened database successfully")
+'''print("Opened database successfully")
 res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 for name in res:
-     print(name[0])
+     print(name[0])'''
 
+upsql = "UPDATE application_posts " \
+        "SET hashtags = NULL " \
+        "WHERE hashtags = 'No Hash Tag';"
+list = ["lisa_nolan"]#, "amelia_goodman","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
+
+for instagram in list:
+    #getting id
+    outsql = "SELECT id FROM application_users WHERE instagram = '" + instagram +"';"
+    cursor = conn.execute(outsql)
+    id = -1
+    for row in cursor:
+        id = row[0]
+
+    ##getting data from Posts No of posts per month
+    outsql = "SELECT count(*),strftime('%m-%Y', posted_on) as 'month-year' FROM application_posts WHERE instagram = '" + instagram +"' GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on"
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        print("POSTS DATA = ", row)
+    ##getting comments and their sentiments
+    outsql = "SELECT COUNT(*),owner,sentiment,strftime('%m-%Y',application_comment.posted_on),text " \
+             "FROM application_comment " \
+             "INNER JOIN application_posts on application_comment.post_id = application_posts.id WHERE instagram = '" + instagram + "' " \
+             "GROUP BY strftime('%m-%Y', application_comment.posted_on), application_comment.sentiment ORDER BY application_comment.posted_on;"
+
+    print(outsql)
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        print("Sentiment Data = ", row)
+
+        ###Picture data
+    outsql = "SELECT count(*),person,strftime('%m-%Y', posted_on) as 'month-year' " \
+             "FROM application_picture " \
+             "WHERE instagram = " + str(id) + " GROUP BY strftime('%m-%Y', posted_on),person ORDER BY posted_on;"
+    print(outsql)
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        print("Picture Data = ", row)
+
+    ###AVg number of likes
+    outsql = "SELECT avg(likes),strftime('%m-%Y', posted_on) as 'month-year' " \
+             "FROM application_posts " \
+             "WHERE instagram = '"+instagram+"' GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on"
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        print("Likes Data = ", row)
+
+    #hashtag usage
+    outsql = "SELECT posted_on, count(hashtags) " \
+             "FROM application_posts " \
+             "WHERE instagram = '"+ instagram +"' " \
+             "GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on"
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        print("Hashtag Usage = ", row)
+
+exit(0)
 
 
 x = 51
@@ -28,16 +84,6 @@ date = datetime_obj.strftime('"%y/%m/%d"')
 print(insql)
 conn.execute(insql)
 conn.commit()'''
-
-cursor = conn.execute("SELECT * from application_pictures WHERE instagram = '" + 'usmanmaliktest' + "';")
-for row in cursor:
-    print("application_users ID = ", row)
-
-
-
-
-exit(0)
-
 
 
 

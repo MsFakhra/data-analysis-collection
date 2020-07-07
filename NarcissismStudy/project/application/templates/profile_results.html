@@ -14,9 +14,19 @@
 </div>
 
 <div class="container">
-    {% for obj in objects %}
-  <p>{{ obj.total }}</p>
-    {% endfor %}
+
+  <script> var obj = "{{data}}"
+  document.write(obj)
+
+  for (var key in obj) {
+  if (obj.hasOwnProperty(key)) {
+  document.write(obj[key])
+
+
+  }
+}
+</script>
+
 </div>
 <!--  Displaying line graph  -->
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -25,16 +35,24 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
+         var posts_data = google.visualization.arrayToDataTable([
+         ['Date', 'Count'],
+          ['2004',  1000],
+          ['2005',  1170],
+          ['2006',  660],
+          ['2007',  1030]
+        ]);
+
+         var data = google.visualization.arrayToDataTable([
+          ['Date', 'Count'],
+          ['2004',  1000],
+          ['2005',  1170],
+          ['2006',  660],
+          ['2007',  1030]
         ]);
 
         var options = {
-          title: 'Company Performance',
+          title: 'Posting Tendency',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
