@@ -104,7 +104,7 @@ happy = [128513,128514,128515,128516,128517,128518,128519,128520,128521,128522,1
     ,128584,128585,128586 #cats
     ,128587,128588,128591 #monkeys
     ,10084,10083,10085,10086,10087 #black hearts
-    ,128293,128076,128079
+    ,128293,128076,128079,128077
     ]
 neutral = [128527,128528,128530,128554,128555,128562,128563,128565,128566,128567,128582
     ,128070,128071,128072,128073]
@@ -653,6 +653,8 @@ def extract_tone_correspondence(sentence):
             for item in tone_list:
               tone_name = item.pop('tone_name')
               score = item.pop('score')
+    if tone_name == 'Tentative':
+        tone_name, score = checkemoji(phrase)
     if (phrase.__contains__('fuck')):
         text = phrase.replace('fuck', '')
         tone, sscore = vader_tone(text)
@@ -662,7 +664,7 @@ def extract_tone_correspondence(sentence):
             score = 0.8
     if (phrase.__contains__('fierce')):
         tone_name, score = checkemoji(phrase)
-    if (score == -1000):
+    if (score == -1000 or tone_name == 'Analytical'):
         tone_name, score = vader_tone(phrase)
     jsonobject = [{
         "text": phrase,
@@ -815,8 +817,11 @@ import os
 import pathlib
 
 def startjob():
-    list = ["lisa_nolan", "amelia_goodman"]
+    list = ["lisannacarmen","nlb_.x","aribroadbent","miabrown_","slotheysimpson","lydiaajacksonx"]#,"keishahaye","abbiethomson__"]
     done = ["nadiamaya_","annam.ahmad","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
+    done2 = ["lisa_nolan", "amelia_goodman","chloescantlebury","emilybahr","thearoberts","imymann","diipakhosla"]
+    non_business = ["emilybahr","thearoberts"]
+
 
     processed = False
     for instagram in list:
