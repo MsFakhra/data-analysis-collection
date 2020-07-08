@@ -2,8 +2,8 @@
 {% block content %}
 
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-  <h1 class="display-4">Step 2  </h1>
-  <p class="lead">Thanks for signing up. While we process your data, can you please fill out the questionaire. </p>
+  <h1 class="display-4">Questionnaire  </h1>
+  <p class="lead">Thanks for signing up. Many filled the following questionaaire, and know about their personality, spare few minutes to do so. </p>
 </div>
 
 <div class="container">
@@ -24,10 +24,10 @@
                   {{ forloop.counter }}
                 </div>
                 <div class="col-sm d-flex my-auto">
-                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="">  {{ question.0 }} </span>
+                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.2 }}">  {{ question.0 }} </span>
                 </div>
                 <div class="col-sm d-flex my-auto">
-                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="">  {{ question.1 }} </span>
+                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.3 }}">  {{ question.1 }} </span>
                 </div>
               </div>
             {% endfor %}
