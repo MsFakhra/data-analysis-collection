@@ -7,7 +7,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncMonth, TruncYear
 from django.http import HttpResponse
 from django.shortcuts import render
-from application.models import Users,Posts,Picture
+from application.models import Users,Posts,Picture,Comment
 from .tasks import extract_information
 from .tasks import process_Images
 
@@ -102,7 +102,7 @@ def handle_uploaded_file(f,instagram):
 ###### Projecting the data from the database
 
 def profile_results(request):
-    instagram = 'amelia_goodman'
+    instagram = 'lisa_nolan'
     user = Users.objects.get(instagram = instagram)
 
     id = user.id
@@ -127,8 +127,25 @@ def profile_results(request):
 
     #obj = Posts.objects.values('posted_on').annotate(month = TruncMonth('posted_on'),year = TruncYear('posted_on')).filter(user_id= id)
     objs = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
+    total = []
+    data = []
     for o in objs:
-        print(o)
+        count = o['total']
+        date = o['month']
+        o_date = date.strftime('%y/%m')
+
+        total.append(count)
+        #o_dates.append(o_date)
+        data.append({"count":count, "date":o_date})
+
+    #em_objs = Comment.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(
+    #    total=Count('post_id')).filter(post_id=id)
+
+    json_context = {
+        "user":user,
+        "data":data
+    }
+
     '''context = {
         "instagram": obj.instagram,
         "caption": obj.caption,
@@ -136,11 +153,13 @@ def profile_results(request):
         "post_url": obj.post_url,
         "hashtags": obj.hashtags
     }'''
+    print(data)
     context = {
         "user":user,
-        "objects":objs}
+        "data":data
+    }
 
-    return render(request, "profile_results.html", context)
+    return render(request, "profile_results.html",  json_context)#{'data': json_context})
 
 
 def test(request):
