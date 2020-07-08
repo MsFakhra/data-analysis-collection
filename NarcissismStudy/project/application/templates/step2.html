@@ -24,10 +24,10 @@
                   {{ forloop.counter }}
                 </div>
                 <div class="col-sm d-flex my-auto">
-                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="">  {{ question.0 }} </span>
+                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.2 }}">  {{ question.0 }} </span>
                 </div>
                 <div class="col-sm d-flex my-auto">
-                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="">  {{ question.1 }} </span>
+                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.3 }}">  {{ question.1 }} </span>
                 </div>
               </div>
             {% endfor %}
