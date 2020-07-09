@@ -1,3 +1,130 @@
+def checkpostdata(posts,mm,yy):
+    for post in posts:
+        starttuple = post
+        edate = starttuple[0]
+        dbdata = edate.split('-')
+        yyyy = dbdata[1]
+        year = yyyy[-2:]
+        month = dbdata[0]
+        if (year == yy and month == mm):
+            return post[1]
+    return 0
+
+def checkcommentdata(comments,mm,yy):
+    Analytical = 0
+    Anger	= 0
+    Fear	= 0
+    Joy	=0
+    Sadness=0
+    Positive=0
+    Negative=0
+    Neutral=0
+
+
+    for cmt in comments:
+        starttuple = cmt
+        edate = starttuple[0]
+        dbdata = edate.split('-')
+        yyyy = dbdata[1]
+        year = yyyy[-2:]
+        month = dbdata[0]
+        if (year == yy and month == mm):
+            sentiment = starttuple[3]
+            count = starttuple[1]
+            if sentiment == 'Positive':
+                Positive = count
+            else:
+                if sentiment == 'Joy':
+                    Joy = count
+                else:
+                    if sentiment == 'Neutral':
+                        Neutral = count
+                    else:
+                        if sentiment == 'Sadness':
+                            Sadness = count
+                        else:
+                            if sentiment == 'Negative':
+                                Negative = count
+                            else:
+                                if sentiment == 'Confident' or sentiment == 'Tentative':
+                                    Positive = Positive + count
+                                else:
+                                    if sentiment == 'Fear':
+                                        Fear = count
+                                    else:
+                                        if sentiment == 'Anger':
+                                            Anger = count
+                                        else:
+                                            if sentiment == 'Analytical':
+                                                Analytical = count
+
+    return str(Analytical) + ',' + str(Anger) + ',' + str(Fear) + ',' + str(Joy) + ',' + str(Sadness) + ',' + str(Positive) + ',' + str(Negative) + ',' + str(Neutral)
+
+def checkpictures(instagram, pictures,mm,yy):
+    otherscount = 0
+    selfiecount = 0
+
+    for picture in pictures:
+        starttuple = picture
+        edate = starttuple[0]
+        dbdata = edate.split('-')
+        yyyy = dbdata[1]
+        year = yyyy[-2:]
+        month = dbdata[0]
+        if (year == yy and month == mm):
+            if instagram == starttuple[1]:
+                selfiecount = starttuple[2]
+            else:
+                otherscount = starttuple[2]
+    return str(selfiecount) + ',' + str(otherscount)
+
+def checklikes(likes,mm,yy):
+    for like in likes:
+        starttuple = like
+        edate = starttuple[0]
+        dbdata = edate.split('-')
+        yyyy = dbdata[1]
+        year = yyyy[-2:]
+        month = dbdata[0]
+        if (year == yy and month == mm):
+            return like[1]
+    return 0
+def checkhashtags(hashtags,mm,yy):
+    for tag in hashtags:
+        starttuple = tag
+        edate = starttuple[0]
+        dbdata = edate.split('-')
+        yyyy = dbdata[1]
+        year = yyyy[-2:]
+        month = dbdata[0]
+        if (year == yy and month == mm):
+            return tag[1]
+    return 0
+def write_data(instagram,posts,comments,pictures,likes,hashtags,f):
+    starttuple = posts.__getitem__(0)
+    edate = starttuple[0]
+    endtuple = posts.__getitem__(len(posts) - 1)
+    sdate = endtuple[0]
+    print(sdate, edate)
+    import pandas as pd
+    month_list = [i.strftime("%m-%y") for i in pd.date_range(start=sdate, end=edate, freq='MS')]
+
+    index = len(month_list) -1
+    while index >= 0:
+        ddata = month_list[index].split('-')
+        mm = ddata[0]
+        yy = ddata[1]
+        postcount = checkpostdata(posts,mm,yy)
+        picturecount = checkpictures(instagram,pictures,mm,yy)
+        likescount = checklikes(likes,mm,yy)
+        comment = checkcommentdata(comments,mm,yy)
+        htags = checkhashtags(hashtags,mm,yy)
+        row = month_list[index] + ',' + str(postcount) + ',' + picturecount + ',' + str(likescount)+ ',' +str(htags)+ ',' +comment
+        f.write(row + '\n')
+        index = index -1
+
+###############################################################################################################################################################################################################
+
 import sqlite3
 conn = sqlite3.connect('project/db.sqlite3')
 
@@ -5,63 +132,93 @@ conn = sqlite3.connect('project/db.sqlite3')
 res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 for name in res:
      print(name[0])'''
+i= 0
+outsql = "SELECT instagram FROM application_users"
+cursor = conn.execute(outsql)
+for row in cursor:
+    print(row)
+    i +=1
+print(i)
 
 upsql = "UPDATE application_posts " \
         "SET hashtags = NULL " \
         "WHERE hashtags = 'No Hash Tag';"
-list = ["lisa_nolan"]#, "amelia_goodman","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
 
-for instagram in list:
-    #getting id
-    outsql = "SELECT id FROM application_users WHERE instagram = '" + instagram +"';"
-    cursor = conn.execute(outsql)
-    id = -1
-    for row in cursor:
-        id = row[0]
+csv_result = []
+list = ['lisa_nolan','amelia_goodman','chloescantlebury','emilybahr','thearoberts','imymann','lisannacarmen','nlb_.x','aribroadbent','miabrown_','slotheysimpson','lydiaajacksonx','keishahaye', 'abbiethomson__','kerry.linney','karalips','shaunaburke96','shelbymccrann','inked_keifer93']
 
-    ##getting data from Posts No of posts per month
-    outsql = "SELECT count(*),strftime('%m-%Y', posted_on) as 'month-year' FROM application_posts WHERE instagram = '" + instagram +"' GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on"
-    cursor = conn.execute(outsql)
-    for row in cursor:
-        print("POSTS DATA = ", row)
-    ##getting comments and their sentiments
-    outsql = "SELECT COUNT(*),owner,sentiment,strftime('%m-%Y',application_comment.posted_on),text " \
-             "FROM application_comment " \
-             "INNER JOIN application_posts on application_comment.post_id = application_posts.id WHERE instagram = '" + instagram + "' " \
-             "GROUP BY strftime('%m-%Y', application_comment.posted_on), application_comment.sentiment ORDER BY application_comment.posted_on;"
+filename = "results.csv"
+firstrow = 'mm/yy' + ',' + 'Post Count' + ',' + 'Selfies,Others' + ',' + 'Avg. Likes' + ',' + 'hashtags' + ',' + 'Analytical,Anger,Fear,Joy,Sadness,Positive,Negative,Neutral'
+with open(filename, "w+") as f:
+    f.write(firstrow +'\n')
 
-    print(outsql)
-    cursor = conn.execute(outsql)
-    for row in cursor:
-        print("Sentiment Data = ", row)
 
-        ###Picture data
-    outsql = "SELECT count(*),person,strftime('%m-%Y', posted_on) as 'month-year' " \
-             "FROM application_picture " \
-             "WHERE instagram = " + str(id) + " GROUP BY strftime('%m-%Y', posted_on),person ORDER BY posted_on;"
-    print(outsql)
-    cursor = conn.execute(outsql)
-    for row in cursor:
-        print("Picture Data = ", row)
+    for instagram in list:
+        #getting id
+        f.write(instagram + '\n')
+        outsql = "SELECT id FROM application_users WHERE instagram = '" + instagram +"';"
+        cursor = conn.execute(outsql)
+        id = -1
+        for row in cursor:
+            id = row[0]
 
-    ###AVg number of likes
-    outsql = "SELECT avg(likes),strftime('%m-%Y', posted_on) as 'month-year' " \
-             "FROM application_posts " \
-             "WHERE instagram = '"+instagram+"' GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on"
-    cursor = conn.execute(outsql)
-    for row in cursor:
-        print("Likes Data = ", row)
+        ##getting data from Posts No of posts per month
+        posts = []
+        outsql = "SELECT strftime('%m-%Y', posted_on) as 'month-year',count(*) FROM application_posts WHERE instagram = '" + instagram +"' GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on DESC"
+        cursor = conn.execute(outsql)
+        for row in cursor:
+            #print("POSTS DATA = ", row)
+            posts.append(row)
+        ##getting comments and their sentiments
+        comments = []
+        outsql = "SELECT strftime('%m-%Y',application_comment.posted_on), COUNT(*),owner,sentiment,text " \
+                 "FROM application_comment " \
+                 "INNER JOIN application_posts on application_comment.post_id = application_posts.id WHERE owner = '" + instagram + "' " \
+                 "GROUP BY strftime('%m-%Y', application_comment.posted_on), application_comment.sentiment ORDER BY application_comment.posted_on DESC;"
 
-    #hashtag usage
-    outsql = "SELECT posted_on, count(hashtags) " \
-             "FROM application_posts " \
-             "WHERE instagram = '"+ instagram +"' " \
-             "GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on"
-    cursor = conn.execute(outsql)
-    for row in cursor:
-        print("Hashtag Usage = ", row)
+        #print(outsql)
+        cursor = conn.execute(outsql)
+        for row in cursor:
+            #print("Sentiment Data = ", row)
+            comments.append(row)
+
+            ###Picture data
+        pictures = []
+        outsql = "SELECT strftime('%m-%Y', posted_on) as 'month-year', person,count(*) " \
+                 "FROM application_picture " \
+                 "WHERE instagram = " + str(id) + " GROUP BY strftime('%m-%Y', posted_on),person ORDER BY posted_on DESC;"
+        #print(outsql)
+        cursor = conn.execute(outsql)
+        for row in cursor:
+            #print("Picture Data = ", row)
+            pictures.append(row)
+
+        ###AVg number of likes
+        likes = []
+        outsql = "SELECT strftime('%m-%Y', posted_on) as 'month-year',avg(likes) " \
+                 "FROM application_posts " \
+                 "WHERE instagram = '"+instagram+"' GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on DESC"
+        cursor = conn.execute(outsql)
+        for row in cursor:
+            #print("Likes Data = ", row)
+            likes.append(row)
+
+        #hashtag usage
+        hashtags = []
+        outsql = "SELECT strftime('%m-%Y', posted_on), count(hashtags) " \
+                 "FROM application_posts " \
+                 "WHERE instagram = '"+ instagram +"' " \
+                 "GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on DESC"
+        cursor = conn.execute(outsql)
+        for row in cursor:
+            print("Hashtag Usage = ", row)
+            hashtags.append(row)
+
+        write_data(instagram,posts,comments,pictures,likes,hashtags,f)
+
 
 exit(0)
+
 
 
 x = 51

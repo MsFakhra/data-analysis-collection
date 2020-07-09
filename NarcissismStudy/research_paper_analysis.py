@@ -227,7 +227,8 @@ def extract_posts(profile,profilepath):
     for post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
     #for post in posts_sorted_by_date:
         #print (post.caption)
-        json = L.download_post(post,profilepath)
+        if not post.is_video:
+            json = L.download_post(post,profilepath)
         posts.append(post)
         counter += 1
         print(counter)
@@ -817,7 +818,7 @@ import os
 import pathlib
 
 def startjob():
-    list = ["lisannacarmen","nlb_.x","aribroadbent","miabrown_","slotheysimpson","lydiaajacksonx"]#,"keishahaye","abbiethomson__"]
+    list = ["cameram4nr6"]#"lisannacarmen","nlb_.x","aribroadbent","miabrown_","slotheysimpson","lydiaajacksonx"]#,"keishahaye","abbiethomson__"]
     done = ["nadiamaya_","annam.ahmad","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
     done2 = ["lisa_nolan", "amelia_goodman","chloescantlebury","emilybahr","thearoberts","imymann","diipakhosla"]
     non_business = ["emilybahr","thearoberts"]
