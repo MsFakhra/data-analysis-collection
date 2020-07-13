@@ -105,21 +105,20 @@ def write_data(instagram,posts,comments,pictures,likes,hashtags,f):
     edate = starttuple[0]
     endtuple = posts.__getitem__(len(posts) - 1)
     sdate = endtuple[0]
-    print(sdate, edate)
     import pandas as pd
-    month_list = [i.strftime("%m-%y") for i in pd.date_range(start=sdate, end=edate, freq='MS')]
+    month_list = [i.strftime("%y-%m") for i in pd.date_range(start=sdate, end=edate, freq='MS')]
 
     index = len(month_list) -1
     while index >= 0:
         ddata = month_list[index].split('-')
-        mm = ddata[0]
-        yy = ddata[1]
+        mm = ddata[1]
+        yy = ddata[0]
         postcount = checkpostdata(posts,mm,yy)
         picturecount = checkpictures(instagram,pictures,mm,yy)
         likescount = checklikes(likes,mm,yy)
         comment = checkcommentdata(comments,mm,yy)
         htags = checkhashtags(hashtags,mm,yy)
-        row = month_list[index] + ',' + str(postcount) + ',' + picturecount + ',' + str(likescount)+ ',' +str(htags)+ ',' +comment
+        row = month_list[index]+ ',' + str(postcount) + ',' + picturecount + ',' + str(likescount)+ ',' +str(htags)+ ',' +comment
         f.write(row + '\n')
         index = index -1
 
@@ -144,9 +143,14 @@ upsql = "UPDATE application_posts " \
         "SET hashtags = NULL " \
         "WHERE hashtags = 'No Hash Tag';"
 
-csv_result = []
-list = ['lisa_nolan','amelia_goodman','chloescantlebury','emilybahr','thearoberts','imymann','lisannacarmen','nlb_.x','aribroadbent','miabrown_','slotheysimpson','lydiaajacksonx','keishahaye', 'abbiethomson__','kerry.linney','karalips','shaunaburke96','shelbymccrann','inked_keifer93']
+cur = conn.cursor()
+cur.execute(upsql)
+conn.commit()
 
+
+csv_result = []
+list = ["fridacaarlson","saanieee"]#["nlb_.x", "lydiaajacksonx","kerry.linney"]#["emzohorne","louannvecchia","oliviameikle_"] # 'shelbymccrann','inked_keifer93','nlb_.x',
+olist = ["charlotteshipman","evalouuise","kirstenmcleodd",'lisa_nolan','amelia_goodman','chloescantlebury','emilybahr','thearoberts','imymann','lisannacarmen','aribroadbent','miabrown_','slotheysimpson','lydiaajacksonx','keishahaye', 'abbiethomson__','kerry.linney','karalips','shaunaburke96']
 filename = "results.csv"
 firstrow = 'mm/yy' + ',' + 'Post Count' + ',' + 'Selfies,Others' + ',' + 'Avg. Likes' + ',' + 'hashtags' + ',' + 'Analytical,Anger,Fear,Joy,Sadness,Positive,Negative,Neutral'
 with open(filename, "w+") as f:
@@ -211,7 +215,7 @@ with open(filename, "w+") as f:
                  "GROUP BY strftime('%m-%Y', posted_on) ORDER BY posted_on DESC"
         cursor = conn.execute(outsql)
         for row in cursor:
-            print("Hashtag Usage = ", row)
+            #print("Hashtag Usage = ", row)
             hashtags.append(row)
 
         write_data(instagram,posts,comments,pictures,likes,hashtags,f)

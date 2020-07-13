@@ -17,9 +17,9 @@ import sqlite3
 
 #Tone Analysis
 from watson_developer_cloud import ToneAnalyzerV3
-apikey = 'wGySQLw3nxEOhEirYSvAZScum9v_1_VoA8lKZYMi6ip-'
-urlref = 'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/618c6917-36fa-4dd7-a10b-8df2ed184446'
-version = '2020-02-20'#'2020-02-21'
+apikey = 'Sst3Vq2D221Alx-YbgLNtwOyu5fywKtaL2rl8NSl9-m3'#'wGySQLw3nxEOhEirYSvAZScum9v_1_VoA8lKZYMi6ip-'
+urlref = 'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/2ba5653f-b626-495a-9efc-c9e3f6428c59'#'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/618c6917-36fa-4dd7-a10b-8df2ed184446'
+version = '2/25/2020'#'2020-02-20'#'2020-02-21'
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 vanalyzer = SentimentIntensityAnalyzer()
@@ -156,11 +156,11 @@ UNTIL = datetime(2020,6,1)
 '''
 #all posts in duration
 #Final
-SINCE = datetime(2018, 8, 1)    #yyyy-mm-dd 2020-05-30
+SINCE = datetime(2018, 8, 1)    #yyyy-mm-dd 2020-05-30 2019-08-05
 UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
 #Debugging
-#SINCE = datetime(2018, 10, 18)    #yyyy-mm-dd 18/10/18
-#UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
+#SINCE = datetime(2018, 8, 5)    #yyyy-mm-dd 18/10/18
+#UNTIL = datetime(2018, 8, 7)    #yyyy-mm-dd 2020-05-30
 
 
 def extract_information(profilename):
@@ -224,8 +224,8 @@ def extract_posts(profile,profilepath):
     posts = []
     posts_sorted_by_date = sorted(profile.get_posts(), key=lambda p: p.date, reverse=False)
     counter = 0
-    for post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
-    #for post in posts_sorted_by_date:
+    #for post in takewhile(lambda p: p.date <= UNTIL, dropwhile(lambda p: p.date <  SINCE, posts_sorted_by_date)):
+    for post in posts_sorted_by_date:
         #print (post.caption)
         if not post.is_video:
             json = L.download_post(post,profilepath)
@@ -509,22 +509,25 @@ def process_as_dict(result,convlist):
     for msg in sentences:
         msgslist = msg
         message_result = {'text': '', 'tone_name': '', 'score': 0}
-        message = msgslist[0];
-        message_result['score'] = message.get('score')
-        message_result['tone_name'] = message.get('tone_name')
-        message_result['text'] = message.get('text')
-        index = 1   #get replies
-        while index < len(msgslist):
-            dic = msgslist[index];
-            # merger multiple sentences
-            if (dic['tone_name'] in Emotions):
-                message_result['score'] = dic['score']
-                message_result['tone_name'] = dic['tone_name']
-            message = {'text': message.get('text', ' ') + dic['text']}
-            #message_result['text'] = message['text']
-            message_result.update(message)
-            index += 1
+        if(msgslist):
+            message = msgslist[0];
+            message_result['score'] = message.get('score')
+            message_result['tone_name'] = message.get('tone_name')
+            message_result['text'] = message.get('text')
+            index = 1   #get replies
+            while index < len(msgslist):
+                dic = msgslist[index];
+                # merger multiple sentences
+                if (dic['tone_name'] in Emotions):
+                    message_result['score'] = dic['score']
+                    message_result['tone_name'] = dic['tone_name']
+                message = {'text': message.get('text', ' ') + dic['text']}
+                #message_result['text'] = message['text']
+                message_result.update(message)
+                index += 1
         conversation.append(message_result)
+
+
     ##################################
     #fill tones in emotions
     comment = convlist[0]
@@ -818,7 +821,7 @@ import os
 import pathlib
 
 def startjob():
-    list = ["cameram4nr6"]#"lisannacarmen","nlb_.x","aribroadbent","miabrown_","slotheysimpson","lydiaajacksonx"]#,"keishahaye","abbiethomson__"]
+    list = ["fridacaarlson","saanieee"]#"nlb_.x", "lydiaajacksonx","kerry.linney"]#"emzohorne","louannvecchia","oliviameikle_"]
     done = ["nadiamaya_","annam.ahmad","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
     done2 = ["lisa_nolan", "amelia_goodman","chloescantlebury","emilybahr","thearoberts","imymann","diipakhosla"]
     non_business = ["emilybahr","thearoberts"]
