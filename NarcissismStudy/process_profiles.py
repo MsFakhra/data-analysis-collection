@@ -300,8 +300,8 @@ def vader_tone(text):
                 tone_name = "Negative"
     return tone_name,score
 
-#text = '@mahee2000 fierce as fuck 🔥'
-text = 'fuck i love you'
+#text = '@mahee2000 fierce as fuck '
+text = 'fuck love you 🔥'
 
 if(text.__contains__('fuck')):
     text = text.replace('fuck', '')
