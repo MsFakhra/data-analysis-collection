@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-{% load staticfiles%}
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
   <h1 class="display-4">{{user.full_name}}  </h1>
   <p class="lead">{{user.instagram}}</p>
@@ -14,20 +13,17 @@
 </div>
 
 <div class="container">
-
-  <script> var obj = "{{data}}"
-  document.write(obj)
-
-  for (var key in obj) {
-  if (obj.hasOwnProperty(key)) {
-  document.write(obj[key])
-
-
-  }
-}
+    <script>
+/////////////////Creating dataArray for posts
+  var posts_dataArray = [['Date', 'Count']]
+  {% for obj in posts %}
+    posts_dataArray.push(['{{obj.month}}',{{obj.total}}]);
+  {% endfor %}
+  console.log(posts_dataArray)
 </script>
 
 </div>
+
 <!--  Displaying line graph  -->
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -35,31 +31,17 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-         var posts_data = google.visualization.arrayToDataTable([
-         ['Date', 'Count'],
-          ['2004',  1000],
-          ['2005',  1170],
-          ['2006',  660],
-          ['2007',  1030]
-        ]);
-
-         var data = google.visualization.arrayToDataTable([
-          ['Date', 'Count'],
-          ['2004',  1000],
-          ['2005',  1170],
-          ['2006',  660],
-          ['2007',  1030]
-        ]);
-
-        var options = {
-          title: 'Posting Tendency',
+         var posts_data = google.visualization.arrayToDataTable(posts_dataArray);
+         var options = {
+          title: 'Posting Frequency',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
-        chart.draw(data, options);
+        //chart.draw(data, options);
+        chart.draw(posts_data, options);
       }
     </script>
   <!--  Displaying line graph  -->

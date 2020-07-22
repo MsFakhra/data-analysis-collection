@@ -10,8 +10,7 @@ from django.shortcuts import render
 from application.models import Users,Posts,Picture,Comment
 from .tasks import extract_information
 from .tasks import process_Images
-
-import sqlite3
+from django.db.models import Avg
 
 def index(request):
     return render(request, 'index.html', {})
@@ -123,43 +122,19 @@ def profile_results(request):
         "followers": followers,
         "following": following
     }
-    #obj = Posts.objects.filter(user_id= id)#1792)  # https://www.youtube.com/watch?v=vCX6Tpb9sP8
 
-    #obj = Posts.objects.values('posted_on').annotate(month = TruncMonth('posted_on'),year = TruncYear('posted_on')).filter(user_id= id)
-    objs = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
-    total = []
-    data = []
-    for o in objs:
-        count = o['total']
-        date = o['month']
-        o_date = date.strftime('%y/%m')
-
-        total.append(count)
-        #o_dates.append(o_date)
-        data.append({"count":count, "date":o_date})
-
-    #em_objs = Comment.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(
-    #    total=Count('post_id')).filter(post_id=id)
+    posts = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
+    likes = Posts.objects.annotate(avglikes = Avg('likes').filter(user_id= id))
+    print(likes)
 
     json_context = {
         "user":user,
-        "data":data
+        "posts":posts
     }
 
-    '''context = {
-        "instagram": obj.instagram,
-        "caption": obj.caption,
-        "posted_on": obj.posted_on,
-        "post_url": obj.post_url,
-        "hashtags": obj.hashtags
-    }'''
-    print(data)
-    context = {
-        "user":user,
-        "data":data
-    }
+    return render(request, "profile_results.html", json_context)# {'data': json_context})
 
-    return render(request, "profile_results.html",  json_context)#{'data': json_context})
+
 
 
 def test(request):
