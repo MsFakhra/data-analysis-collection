@@ -14,27 +14,228 @@
 
 <div class="container">
     <script>
-/////////////////Creating dataArray for posts
-  var posts_dataArray = [['Date', 'Count']]
-  {% for obj in posts %}
-    posts_dataArray.push(['{{obj.month}}',{{obj.total}}]);
+function find_element(arr,mnth){
+for (var oi = 0; oi < arr.length; oi++){
+  if (arr[oi][0] == mnth)
+  return arr[oi][1]
+  }
+  return 0;
+
+}
+
+function find_month(comments_array,mnth)
+{
+for (var oi = 0; oi < comments_array.length; oi++){
+  if (comments_array[oi][0] == mnth)
+    return true;
+  }
+  return false;
+
+}
+
+function process_likes()
+{ /*returns the normalized number of likes*/
+  likes_dataArray = [['Date','avg_likes']]
+  //maximum likes obtained
+  max = -1
+  dataArray = []
+  {% for obj in likes %}
+    dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.avg_likes}}]);
+    if({{obj.avg_likes}} > max)
+       max = {{obj.avg_likes}}
   {% endfor %}
-  console.log(posts_dataArray)
+
+  //normalization
+  for (var index = 0; index < dataArray.length; index ++)
+  {
+    mnth = dataArray[index][0]
+    val = dataArray[index][1] / max
+    likes_dataArray.push([mnth, val])
+  }
+  return likes_dataArray
+}
+function process_comments()
+{ /*returns the normalized data of pictures vs likes */
+ ///processing likes
+  likes_dataArray = process_likes()
+  /////processing pictures
+  var comments_dataArray = [['Date','Anger', 'Fear', 'Sadness', 'Negative', 'Neutral', 'Analytical', 'Joy', 'Positive']]
+  comments_array = []
+  var analytical_dataArray = []
+  var anger_dataArray = []
+  var fear_dataArray = []
+  var sadness_dataArray = []
+  var negative_dataArray = []
+  var neutral_dataArray = []
+  var joy_dataArray = []
+  var positive_dataArray = []
+
+  {% for obj in comments %}
+    mnth =  '{{obj.month|date:'M-Y'}}'
+    isavailable = find_month(comments_array,mnth)
+    if (!isavailable)
+        comments_array.push(['{{obj.month|date:'M-Y'}}']);
+    if('{{obj.sentiment}}' == 'Analytical')
+        analytical_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Anger')
+        anger_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Fear')
+        fear_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Sadness')
+        sadness_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Negative')
+        negative_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Neutral')
+        neutral_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Joy')
+        joy_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Positive')
+        positive_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+  {% endfor %}
+    //normalization
+  max = -1
+
+  for (var index = 0; index < comments_array.length; index ++){
+      mnth = comments_array[index][0]
+      likes = find_element(likes_dataArray,mnth)
+      analytical = find_element(analytical_dataArray,mnth)
+      anger = find_element(anger_dataArray,mnth)
+      fear = find_element(fear_dataArray,mnth)
+      sadness = find_element(sadness_dataArray,mnth)
+      negative = find_element(negative_dataArray,mnth)
+      neutral = find_element(neutral_dataArray,mnth)
+      joy = find_element(joy_dataArray,mnth)
+      positive = find_element(positive_dataArray,mnth)
+      sum = analytical+anger+fear+sadness+negative+neutral+joy+positive
+      if (sum > max)
+        max = sum
+  }
+
+  //console.log('max',max)
+  for (var index = 0; index < comments_array.length; index ++){
+      mnth = comments_array[index][0]
+      likes = find_element(likes_dataArray,mnth)
+      analytical = find_element(analytical_dataArray,mnth) / max
+      anger = find_element(anger_dataArray,mnth) / max
+      fear = find_element(fear_dataArray,mnth)/ max
+      sadness = find_element(sadness_dataArray,mnth)/max
+      negative = find_element(negative_dataArray,mnth)/max
+      neutral = find_element(neutral_dataArray,mnth)/max
+      joy = find_element(joy_dataArray,mnth)/max
+      positive = find_element(positive_dataArray,mnth)/max
+      sum = analytical+anger+fear+sadness+negative+neutral+joy+positive
+      //console.log('month, analytical,anger,fear,sadness,negative,neutral,joy,positive',mnth,analytical,anger,fear,sadness,negative,neutral,joy,positive)
+      comments_dataArray.push([mnth,anger,fear,sadness,negative,neutral,analytical,joy,positive])
+  }
+  //normalization
+  return comments_dataArray
+  //return pictures_dataArray //returns original array
+}
+function process_pictures()
+{ /*returns the normalized data of pictures vs likes */
+ ///processing likes
+  likes_dataArray = process_likes()
+  /////processing pictures
+  var pictures_dataArray = [['Date','Selfie','Others','Avg_Likes']]
+  var selfie_dataArray = []
+  var others_dataArray = []
+
+  {% for obj in pictures %}
+    if('{{obj.person}}' != 'Others')
+    selfie_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}},'{{obj.person}}']);
+    else
+    others_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}},'{{obj.person}}']);
+  {% endfor %}
+  ol = others_dataArray.length
+  sl = selfie_dataArray.length
+  if (sl >= ol){
+    for (var index = 0; index < selfie_dataArray.length; index ++){
+      mnth = selfie_dataArray[index][0]
+      elem = find_element(others_dataArray,mnth)
+      likes = find_element(likes_dataArray,mnth)
+      pictures_dataArray.push([mnth, selfie_dataArray[index][1],elem,likes])
+    }
+  }
+  else
+  {
+    for (var index = 0; index < others_dataArray.length; index ++){
+        mnth = others_dataArray[index][0]
+        elem = find_element(selfie_dataArray,mnth)
+        likes = find_element(likes_dataArray,mnth)
+        pictures_dataArray.push([mnth, elem, others_dataArray[index][1],likes])
+    }
+  }
+  //normalization
+  max1 = -1
+  max2 = -1
+  for (var index = 1; index < pictures_dataArray.length; index ++){
+     self = pictures_dataArray[index][1]
+     othr = pictures_dataArray[index][2]
+     val = self + othr
+     if(self > max1)
+        max1 = self
+     if(val > max2)
+        max2 = val
+  }
+  normalized_likes_array = [['Date','Selfie','Avg_Likes']]
+  normalized_pictures_array = [['Date','Selfie','Others']]
+  for (var index = 1; index < pictures_dataArray.length; index ++){
+     mnth = pictures_dataArray[index][0]
+     self = pictures_dataArray[index][1]/max2 ;
+     othr = pictures_dataArray[index][2]/max2;
+     likes = pictures_dataArray[index][3]
+     self1 = pictures_dataArray[index][1]/max1 ;
+     normalized_likes_array.push([mnth, self1, likes])
+     normalized_pictures_array.push([mnth, self, othr])
+  }
+  return [normalized_likes_array,normalized_pictures_array]
+  //return pictures_dataArray //returns original array
+}
+
+
+
+
+function process_posts()
+{
+  /////////////////Creating dataArray for posts
+  var posts_dataArray = [['Date', 'Posts Shared']]
+  {% for obj in posts %}
+    posts_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+  {% endfor %}
+  return posts_dataArray;
+
+}
+</script>
+
+  <script>
+  posts_dataArray = process_posts();
+  data = process_pictures();
+  picture_likes_data = data[0]
+  pictures_data = data[1];
+  comments_data = process_comments()
+  console.log(comments_data)
+
+
+
 </script>
 
 </div>
-
-<!--  Displaying line graph  -->
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<!--  Displaying posts line graph  -->
+  <script type="text/javascript">
       google.charts.load('current', {'packages':['corechart']});
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
          var posts_data = google.visualization.arrayToDataTable(posts_dataArray);
          var options = {
-          title: 'Posting Frequency',
+          //title: 'This shows how frequent you shared on Instagram',
           curveType: 'function',
+          hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+          },
           legend: { position: 'bottom' }
         };
 
@@ -42,9 +243,135 @@
 
         //chart.draw(data, options);
         chart.draw(posts_data, options);
+      };
+      </script>
+<!--  Displaying comments and avg likes graph  -->
+<script>
+
+//drawing bar plot with sentiments
+
+      function drawSentimentsChart() {
+      var data = google.visualization.arrayToDataTable(comments_data);
+            const options = {
+      //chart:   { title: 'You emotions' },
+      legend:  { position: 'top' },
+      hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+      },
+      vAxis:{
+          format:'#%'
+      },
+      isStacked:true,
+      seriesType: 'bars',
+      series:
+      { //[mnth,anger,fear,sadness,negative,neutral,analytical,joy,positive]
+      0:{ color: '#FF0000' },
+      1: { color: '#F4D03F' },
+      2:{ color: '#3498DB' },
+      3:{ color: '#A569BD' },
+      4:{ color: '#2ECC71' },
+      5:{ color: '#16A085' },
+      6:{ color: '#D35400' },
+      7:{ color: 'C75454' }
       }
+      };
+
+   const elem = document.getElementById('emotions_chart');
+   const chart = new google.visualization.ColumnChart(elem);
+   chart.draw(data, options);
+  }
+  google.charts.load('current', { packages: ['bar'] });
+  google.charts.setOnLoadCallback(drawSentimentsChart);
+
+
     </script>
-  <!--  Displaying line graph  -->
+
+<!--  Displaying pictures and avg likes graph  -->
+<script>
+
+//drawing bar plot with pictures
+
+      function drawLikesonPicturesChart() {
+      var data = google.visualization.arrayToDataTable(picture_likes_data);
+      const colors = [
+         { color: '#CD5C5C' },  //selfie
+         { color: '#F08080' },      //other
+         ];
+      const options = {
+      //chart:   { title: 'Did your Selfies recieved Like (in which month)' },
+      legend:  { position: 'top' },
+      hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+      },
+      vAxis:{
+          title: '%age',
+          format:'#%'
+      },
+      seriesType: 'bars',
+      series: {
+        0:{ color: '#7FB3D5' },
+        1:{
+          type: 'line',
+          color: '3D4CBB'
+          }
+        }
+      };
+
+   const elem = document.getElementById('likes_pictures_chart');
+   const chart = new google.visualization.ComboChart(elem);
+   chart.draw(data, options);
+  }
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawLikesonPicturesChart);
+
+
+    </script>
+<!-- drawing stacked column plot with pictures -->
+<script>
+      function drawPicturesChart() {
+      var data = google.visualization.arrayToDataTable(pictures_data);
+      const colors = [
+         { color: '#5499C7' },  //selfie
+         { color: '#7FB3D5' },      //other
+         ];
+      const options = {
+      //chart:   { title: 'How much you shared Selfies / Other Pictures' },
+      legend:  { position: 'top' },
+      hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+      },
+      vAxis:{
+          format:'#%'
+      },
+      isStacked:true,
+      seriesType: 'bars',
+      series: colors
+      };
+
+   const elem = document.getElementById('pictures_chart');
+   const chart = new google.visualization.ColumnChart(elem);
+   chart.draw(data, options);
+  }
+  google.charts.load('current', { packages: ['bar'] });
+  google.charts.setOnLoadCallback(drawPicturesChart);
+
+
+    </script>
+  <!--  Displaying Plots over HTML  -->
+<b>How frequent you shared on Instagram over the past months
 <div id="curve_chart" style="width: 900px; height: 500px"></div>
+How frequent your selfies recieved likes
+<div id="likes_pictures_chart" style="width: 1000px; height: 500px"></div>
+How were your emotions
+<div id="emotions_chart" style="width: 1000px; height: 500px"></div>
+
+How frequent you your selfies
+<div id="pictures_chart" style="width: 1000px; height: 500px"></div>
 
 {% endblock %}

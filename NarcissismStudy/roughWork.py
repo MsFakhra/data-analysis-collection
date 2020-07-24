@@ -131,7 +131,29 @@ conn = sqlite3.connect('project/db.sqlite3')
 res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 for name in res:
      print(name[0])'''
+
+
+outsql = "SELECT user_id, posted_on,likes, AVG('likes') AS 'avg_likes' " \
+         "FROM application_posts " \
+         "WHERE user_id = 223 " \
+         "GROUP BY user_id, posted_on, likes"
+
+outsql = "SELECT person, posted_on, COUNT(instagram) AS total" \
+         " FROM application_picture " \
+         "WHERE instagram = 223 " \
+         "GROUP BY person, posted_on"
 i= 0
+cursor = conn.execute(outsql)
+for row in cursor:
+    i +=1
+    print(row)
+
+print(i)
+exit(0)
+
+
+
+
 outsql = "SELECT instagram FROM application_users"
 cursor = conn.execute(outsql)
 for row in cursor:

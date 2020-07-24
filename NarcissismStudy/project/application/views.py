@@ -10,7 +10,7 @@ from django.shortcuts import render
 from application.models import Users,Posts,Picture,Comment
 from .tasks import extract_information
 from .tasks import process_Images
-from django.db.models import Avg
+from django.db.models import Avg, Max
 
 def index(request):
     return render(request, 'index.html', {})
@@ -124,17 +124,28 @@ def profile_results(request):
     }
 
     posts = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
-    likes = Posts.objects.annotate(avglikes = Avg('likes').filter(user_id= id))
-    print(likes)
-
+    likes = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(avg_likes=Avg('likes')).filter(user_id= id)
+    pictures = Picture.objects.annotate(month=TruncMonth('posted_on')).values('month','person').annotate(total=Count('instagram')).filter(instagram = id)
+    comments = Comment.objects.annotate(month=TruncMonth('posted_on')).values('month', 'sentiment').annotate(
+        total=Count('owner')).filter(owner = instagram)
+    for row in comments:
+        print(row)
     json_context = {
         "user":user,
-        "posts":posts
+        "posts":posts,
+        "likes":likes,
+        "pictures": pictures,
+        "comments":comments
     }
 
     return render(request, "profile_results.html", json_context)# {'data': json_context})
 
-
+def get_non_selfie_score(nselfie,val):
+    for dic in nselfie:
+        value = dic['month']
+        if(value == val):
+            return dic['total']
+    return 0
 
 
 def test(request):
