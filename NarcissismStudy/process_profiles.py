@@ -174,17 +174,21 @@ def extract_information(profilename):
     biography   = profile.biography
     media_count = profile.mediacount
     followees   = profile.followees
+    private = profile.is_private #bool
     #Updating user table with information
     upsql = "UPDATE application_users SET " \
             "biography = '" + biography + "'," \
             "media_count = " + str(media_count) + "," \
             "followers = " + str(followers) + "," \
-            "following = " + str(followees) + "," \
+            "following = " + str(followees) + "," \ 
             "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
     print(upsql)
     cur = conn.cursor()
     cur.execute(upsql)
     conn.commit()
+
+    if(profile.is_private):
+        print("profile is private")
 
     id = -1
     cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
