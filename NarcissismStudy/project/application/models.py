@@ -13,6 +13,7 @@ class Users(models.Model):
     following = models.IntegerField(default=0, null = True)
     created_at = models.DateTimeField('created',default= datetime.now, null = True)
     state = models.TextField('state', default= 'pending')
+    private = models.BooleanField('isprivate',default= False)
 
 class Posts(models.Model):
     user_id = models.BigIntegerField('user_id') #P.K

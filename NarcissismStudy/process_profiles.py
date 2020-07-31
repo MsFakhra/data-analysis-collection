@@ -12,7 +12,8 @@ from os import listdir
 from os.path import isdir, join, isfile, splitext
 import face_recognition
 from face_recognition import face_locations
-from face_recognition.face_detection_cli import image_files_in_folder
+from face_recognition.cli import image_files_in_folder
+#from face_recognition.face_detection_cli import image_files_in_folder
 import sqlite3
 
 
@@ -180,15 +181,13 @@ def extract_information(profilename):
             "biography = '" + biography + "'," \
             "media_count = " + str(media_count) + "," \
             "followers = " + str(followers) + "," \
-            "following = " + str(followees) + "," \ 
+            "following = " + str(followees) + "," \
+            "private = '" + str(private) + "'," \
             "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
     print(upsql)
     cur = conn.cursor()
     cur.execute(upsql)
     conn.commit()
-
-    if(profile.is_private):
-        print("profile is private")
 
     id = -1
     cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
@@ -219,6 +218,7 @@ def extract_information(profilename):
         conn.commit()
 
     print(profilename + "complete")
+
 def extract_posts(profile,profilepath):
     # Obtain posts sorted w.r.t date
     '''

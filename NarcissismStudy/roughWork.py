@@ -131,6 +131,30 @@ conn = sqlite3.connect('project/db.sqlite3')
 res = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 for name in res:
      print(name[0])'''
+profilename = 'diipakhosla'
+profilepath = profilename  # Obtain profile
+
+followers = 33
+name = 'diipakhosla'
+biography = 'profile.biography'
+media_count = 33
+followees = 33
+private = False
+
+upsql = "UPDATE application_users SET " \
+        "biography = '" + biography + "'," \
+        "media_count = " + str(media_count) + "," \
+        "followers = " + str(followers) + "," \
+        "following = " + str(followees) + "," \
+        "private = '" + str(private) + "'," \
+        "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
+print(upsql)
+cur = conn.cursor()
+cur.execute(upsql)
+conn.commit()
+
+exit(0)
+
 
 
 outsql = "SELECT user_id, posted_on,likes, AVG('likes') AS 'avg_likes' " \

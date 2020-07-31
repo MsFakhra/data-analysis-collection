@@ -12,11 +12,20 @@ from .tasks import extract_information
 from .tasks import process_Images
 from django.db.models import Avg, Max
 
+#To check private accounts
+from instaloader import Instaloader, Profile
+L = Instaloader()
+
+
 def index(request):
     return render(request, 'index.html', {})
 
 def step2(request):
     instagram = request.POST['instagram']
+    profile = Profile.from_username(L.context, instagram)
+    private = profile.is_private  # bool
+    if(private):
+        return render(request, 'private.html', context= {'instagram': instagram})
     user = Users(
         full_name = request.POST['full_name'],
         email = request.POST['email'],
