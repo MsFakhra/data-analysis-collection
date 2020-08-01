@@ -14,7 +14,7 @@
         <h4 class="my-0 font-weight-normal">Signup</h4>
       </div>
       <div class="card-body">
-        <form class="needs-validation" novalidate action="step2" method="post" enctype="multipart/form-data">
+        <form class="needs-validation" novalidate action="{% url 'step2'  %}" method="post" enctype="multipart/form-data">
           {% csrf_token %}
         <div class="mb-3">
           <label for="full_name">Full Name <span class="text-muted"></span></label>
