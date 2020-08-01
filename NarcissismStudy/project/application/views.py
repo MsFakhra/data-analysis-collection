@@ -22,7 +22,7 @@ def index(request):
 
 def step2(request):
 #    instagram = request.POST['instagram']
-    profile = Profile.from_username(L.context, instagram)
+    # profile = Profile.from_username(L.context, instagram)
     # private = profile.is_private  # bool
     # if(private):
     #     return render(request, 'private.html', context= {'instagram': instagram})
