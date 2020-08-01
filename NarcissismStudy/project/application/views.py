@@ -21,7 +21,7 @@ def index(request):
     return render(request, 'index.html', {})
 
 def step2(request):
-    instagram = request.POST['instagram']
+#    instagram = request.POST['instagram']
     profile = Profile.from_username(L.context, instagram)
     # private = profile.is_private  # bool
     # if(private):
@@ -35,7 +35,7 @@ def step2(request):
     user.save()
     request.session['user'] = user.id
 
-    handle_uploaded_file(request.FILES['selfie'],instagram)
+    # handle_uploaded_file(request.FILES['selfie'],instagram)
     questionList = [
         ['I have a natural talent for influencing people.', 'I am not good at influencing people.', '1', '0'],
         ['Modesty doesn\'t become me.', 'I am essentially a modest person.', '1', '0'],
