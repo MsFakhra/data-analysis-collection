@@ -95,7 +95,7 @@ def thankyou(request):
     return render(request, 'thankyou.html', {'score': score})
 
 def handle_uploaded_file(f,instagram):
-    # os.mkdir('TrainingDataset/' + instagram)
+    os.mkdir('TrainingDataset/' + instagram)
 
     profilepath = 'TrainingDataset/' + instagram
 
