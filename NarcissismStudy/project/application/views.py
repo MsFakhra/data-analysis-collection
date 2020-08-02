@@ -21,7 +21,7 @@ def index(request):
     return render(request, 'index.html', {})
 
 def step2(request):
-   instagram = request.POST['instagram']
+    instagram = request.POST['instagram']
     profile = Profile.from_username(L.context, instagram)
     private = profile.is_private  # bool
     if(private):
