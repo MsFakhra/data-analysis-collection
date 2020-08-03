@@ -89,13 +89,13 @@ def thankyou(request):
 def handle_uploaded_file(f,instagram):
     # os.mkdir('TrainingDataset/' + instagram)
 
-    profilepath = 'application/media/' + instagram
+    profilepath = 'application/static/media/' + instagram
 
     if not os.path.exists(profilepath):
-        path = pathlib.Path('application/media/' + instagram)
+        path = pathlib.Path('application/static/media/' + instagram)
         path.mkdir(exist_ok=True,parents=True)
 
-    with open('application/media/' + instagram + '/name.jpg', 'wb+') as destination:
+    with open('application/static/media/' + instagram + '/name.jpg', 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
