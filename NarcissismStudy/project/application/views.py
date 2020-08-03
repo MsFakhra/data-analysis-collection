@@ -97,7 +97,7 @@ def handle_uploaded_file(f,instagram):
         path = pathlib.Path(profilepath)
         path.mkdir(exist_ok=True,parents=True)
 
-    with open('application/static/media/' + instagram + '/name.jpg', 'wb+') as destination:
+    with open(profilepath + '/name.jpg', 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
