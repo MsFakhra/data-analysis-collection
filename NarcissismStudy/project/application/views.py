@@ -94,7 +94,7 @@ def handle_uploaded_file(f,instagram):
     profilepath = media + '/' + instagram
 
     if not os.path.exists(profilepath):
-        path = pathlib.Path('application/static/media/' + instagram)
+        path = pathlib.Path(profilepath)
         path.mkdir(exist_ok=True,parents=True)
 
     with open('application/static/media/' + instagram + '/name.jpg', 'wb+') as destination:
