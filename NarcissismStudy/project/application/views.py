@@ -88,8 +88,10 @@ def thankyou(request):
 
 def handle_uploaded_file(f,instagram):
     # os.mkdir('TrainingDataset/' + instagram)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    media = os.path.join(BASE_DIR, 'application/static/media')
 
-    profilepath = 'application/static/media/' + instagram
+    profilepath = media + '/' + instagram
 
     if not os.path.exists(profilepath):
         path = pathlib.Path('application/static/media/' + instagram)
