@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="form1.svg"
+   id="svg36"
+   version="1.1"
+   y="0px"
+   x="0px"
+   viewBox="0 0 120 150">
+  <metadata
+     id="metadata42">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs40">
+    <filter
+       id="filter14110"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14104"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14106"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14108"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14118"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14112"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14114"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14116"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14126"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14120"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14122"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14124"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14134"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14128"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14130"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14132"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14142"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14136"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14138"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14140"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14150"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14144"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14146"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14148"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14158"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14152"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14154"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14156"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14166"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14160"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14162"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14164"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14174"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14168"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14170"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14172"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14182"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14176"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14178"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14180"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14190"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14184"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14186"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14188"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14198"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14192"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14194"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14196"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter14206"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges"
+       inkscape:menu="Blurs"
+       inkscape:label="Evanescent">
+      <feGaussianBlur
+         id="feGaussianBlur14200"
+         in="SourceGraphic"
+         stdDeviation="3"
+         result="result6" />
+      <feColorMatrix
+         id="feColorMatrix14202"
+         in="SourceGraphic"
+         result="result7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 " />
+      <feComposite
+         id="feComposite14204"
+         in2="result7"
+         in="result6"
+         operator="in" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     inkscape:current-layer="svg36"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="104.49973"
+     inkscape:cx="106.18614"
+     inkscape:zoom="3.1466666"
+     showgrid="false"
+     id="namedview38"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <title
+     id="title2">Form</title>
+  <rect
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14110)"
+     id="rect6"
+     height="2.0709746"
+     width="23.538136"
+     y="34.502117"
+     x="37.860168" />
+  <rect
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14118)"
+     id="rect8"
+     height="2.0709746"
+     width="23.538136"
+     y="38.644066"
+     x="37.860168" />
+  <rect
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14126)"
+     id="rect10"
+     height="2.0709746"
+     width="36.377117"
+     y="48.99894"
+     x="48.559319" />
+  <path
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14134)"
+     inkscape:connector-curvature="0"
+     id="path12"
+     d="m 37.860169,53.14089 h 8.559322 V 44.856991 H 37.860169 Z M 40,46.927966 h 4.279661 v 4.141949 H 40 Z" />
+  <path
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14142)"
+     inkscape:connector-curvature="0"
+     id="path14"
+     d="m 37.860169,65.566737 h 8.559322 V 57.282839 H 37.860169 Z M 40,59.353813 h 4.279661 v 4.14195 H 40 Z" />
+  <path
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14150)"
+     inkscape:connector-curvature="0"
+     id="path16"
+     d="m 37.860169,77.992585 h 8.559322 V 69.708686 H 37.860169 Z M 40,71.779661 h 4.279661 V 75.92161 H 40 Z" />
+  <rect
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14158)"
+     id="rect18"
+     height="2.0709746"
+     width="47.076271"
+     y="84.205505"
+     x="37.860168" />
+  <rect
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14166)"
+     id="rect20"
+     height="2.0709746"
+     width="29.957626"
+     y="90.418434"
+     x="37.860168" />
+  <rect
+     style="stroke-width:0.84204841;fill:#d4aa00;filter:url(#filter14174)"
+     id="rect22"
+     height="2.0709746"
+     width="20.396864"
+     y="73.850632"
+     x="48.559319" />
+  <polygon
+     style="fill:#d4aa00;filter:url(#filter14182)"
+     transform="matrix(0.8559322,0,0,0.82838983,18.601695,13.792373)"
+     id="polygon24"
+     points="77.5,75 77.5,72.5 76.16,72.5 73.66,75 " />
+  <polygon
+     style="fill:#d4aa00;filter:url(#filter14190)"
+     transform="matrix(0.8559322,0,0,0.82838983,18.601695,13.792373)"
+     id="polygon26"
+     points="70.98,60 73.49,57.5 35,57.5 35,60 " />
+  <polygon
+     style="fill:#d4be00;filter:url(#filter14198);fill-opacity:1"
+     transform="matrix(0.8559322,0,0,0.82838983,18.601695,13.792373)"
+     id="polygon28"
+     points="82.5,17.5 82.5,48.49 85,45.99 85,15 15,15 15,110 85,110 85,63.66 82.5,66.16 82.5,107.5 17.5,107.5 17.5,17.5 " />
+  <path
+     style="stroke-width:0.81218672;fill:#d4aa00;filter:url(#filter14206)"
+     inkscape:connector-curvature="0"
+     id="path30"
+     d="m 111.08029,39.051102 a 3.9815025,4.1419492 0 0 0 -5.62984,0 l -30.968126,32.216081 -1.990751,2.070975 v 5.856716 h 5.629845 l 1.990751,-2.070975 11.259689,-11.713432 1.409452,-1.46625 18.31491,-19.052966 a 3.9815025,4.1419492 0 0 0 -0.0159,-5.840149 z M 77.293265,77.157035 h -2.810941 v -2.965636 l 12.669141,-13.179682 2.795015,2.9325 z M 109.67084,43.474704 91.355932,62.52767 88.552954,59.520615 106.86786,40.467649 a 1.9932682,2.0735929 0 0 1 2.81891,2.9325 z" />
+  <polygon
+     points="12.5,12.5 77.5,12.5 77.5,13.75 80,13.75 80,10 10,10 10,105 13.75,105 13.75,102.5 12.5,102.5 "
+     id="polygon4-4"
+     transform="matrix(0.8559322,0,0,0.82838983,16.461864,11.650427)"
+     style="fill:#338000" />
+  <rect
+     x="35.720333"
+     y="32.360168"
+     width="23.538136"
+     height="2.0709746"
+     id="rect6-5"
+     style="fill:#338000;stroke-width:0.842048" />
+  <rect
+     x="35.720333"
+     y="36.502113"
+     width="23.538136"
+     height="2.0709746"
+     id="rect8-6"
+     style="fill:#338000;stroke-width:0.842048" />
+  <rect
+     x="46.419491"
+     y="46.856987"
+     width="36.377117"
+     height="2.0709746"
+     id="rect10-9"
+     style="fill:#338000;stroke-width:0.842048" />
+  <path
+     d="m 35.720344,50.998943 h 8.55932 v -8.2839 h -8.55932 z m 2.13983,-6.21292 h 4.27966 v 4.14195 h -4.27966 z"
+     id="path12-4"
+     inkscape:connector-curvature="0"
+     style="fill:#338000;stroke-width:0.842048" />
+  <path
+     d="m 35.720344,63.424793 h 8.55932 v -8.2839 h -8.55932 z m 2.13983,-6.21293 h 4.27966 v 4.14195 h -4.27966 z"
+     id="path14-9"
+     inkscape:connector-curvature="0"
+     style="fill:#338000;stroke-width:0.842048" />
+  <path
+     d="m 35.720344,75.850638 h 8.55932 v -8.2839 h -8.55932 z m 2.13983,-6.21293 h 4.27966 v 4.14195 h -4.27966 z"
+     id="path16-6"
+     inkscape:connector-curvature="0"
+     style="fill:#338000;stroke-width:0.842048" />
+  <rect
+     x="35.720333"
+     y="82.06356"
+     width="47.076271"
+     height="2.0709746"
+     id="rect18-7"
+     style="fill:#338000;stroke-width:0.842048" />
+  <rect
+     x="35.720333"
+     y="88.276482"
+     width="29.957626"
+     height="2.0709746"
+     id="rect20-0"
+     style="fill:#338000;stroke-width:0.842048" />
+  <rect
+     x="46.419491"
+     y="71.708687"
+     width="20.396864"
+     height="2.0709746"
+     id="rect22-6"
+     style="fill:#338000;stroke-width:0.842048" />
+  <polygon
+     points="73.66,75 77.5,75 77.5,72.5 76.16,72.5 "
+     id="polygon24-8"
+     transform="matrix(0.8559322,0,0,0.82838983,16.461864,11.650427)"
+     style="fill:#338000" />
+  <polygon
+     points="35,60 70.98,60 73.49,57.5 35,57.5 "
+     id="polygon26-0"
+     transform="matrix(0.8559322,0,0,0.82838983,16.461864,11.650427)"
+     style="fill:#338000" />
+  <polygon
+     points="85,63.66 82.5,66.16 82.5,107.5 17.5,107.5 17.5,17.5 82.5,17.5 82.5,48.49 85,45.99 85,15 15,15 15,110 85,110 "
+     id="polygon28-2"
+     transform="matrix(0.8559322,0,0,0.82838983,16.461864,11.650427)"
+     style="fill:#338000" />
+  <path
+     d="m 108.94046,36.909153 a 3.9815025,4.1419492 0 0 0 -5.62984,0 l -30.968126,32.216075 -1.99075,2.07098 v 5.85672 h 5.62985 l 1.99075,-2.07098 11.25969,-11.713425 1.40945,-1.46625 18.314906,-19.05297 a 3.9815025,4.1419492 0 0 0 -0.0159,-5.84015 z M 75.153434,75.015088 h -2.81094 v -2.96564 l 12.66914,-13.179675 2.79502,2.9325 z m 32.377576,-33.682325 -18.314906,19.05296 -2.80298,-3.00705 18.314906,-19.05297 a 1.9932682,2.0735929 0 0 1 2.81891,2.9325 z"
+     id="path30-0"
+     inkscape:connector-curvature="0"
+     style="fill:#338000;stroke-width:0.812187" />
+</svg>

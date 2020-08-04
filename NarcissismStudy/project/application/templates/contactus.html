@@ -15,7 +15,7 @@
         <li class="nav-item">
           <a class="nav-link" href="#">What we do</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">Contact Us</a>
         </li>
       </ul>
@@ -30,22 +30,32 @@
 
 
     <div class="row featurette">
-      <div class="col-md-7" align="center">
-        <hr class="featurette-divider">
-        <h1 class="display-4">{{user.instagram}}  </h1>
-        <p class="lead">This is a private account. Therefore, we cannot show the analysis results. However, some basic information regarding the account is</p>
-          <p>
-          <!--npi_score = user.npi_score <br>-->
-
-          Biography : {{user.biography}}<br>
-          Media count : {{user.media_count}}<br>
-          Followers : {{user.followers}}<br>
-          Following : {{user.following}}</p>
-          <hr>
+      <div class="col-md-7">
+        <br>
+        <table align="center" width="150%">
+        <tr><td><h2 class="featurette-heading">Contact Us</h2>
+        <br>
+        <p class="lead">We would love to hear from you. So, if you want to provide any feedback or suggestions related to our work. Please feel free to contact:
+          <ul class = "ref">
+          <li>*Fakhra Jabeen: Click here to <a href="mailto:f.jabeen@vu.nl">email</a></li>
+          <li>Charlotte Gerritsen</li>
+          <li>Jan Treur</li>
+        </ul>
+        </p>
+          </td>
+          <td>
+        <br><br>
+      <p align="right"><br><img id = rcorners3" src="static/media/contact.svg" width = "50%" height="55%"></p>
+          </td>
+          </tr>
+        </table>
       </div>
+    </div>
+    <hr class="featurette-divider">
 
     <!-- /END THE FEATURETTES -->
 
   </div><!-- /.container -->
 
 {% endblock %}
+

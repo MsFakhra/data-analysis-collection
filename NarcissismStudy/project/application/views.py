@@ -12,20 +12,27 @@ from .tasks import extract_information
 from .tasks import process_Images
 from django.db.models import Avg, Max
 
-#To check private accounts
-from instaloader import Instaloader, Profile
-L = Instaloader()
+
 
 
 def index(request):
-    return render(request, 'index.html', {})
+    return render(request, 'home.html', {})
+    #return render(request, 'whatwedo.html', {})
+    #return render(request, 'contactus.html', {})
+
+    ##old
+    #return render(request, 'index.html', {})
+#def whatwedo(request):
+#    return render(request, 'whatwedo.html', {})
+#def contactus(request):
+#    return render(request, 'contactus.html', {})
 
 def step2(request):
     instagram = request.POST['instagram']
-    profile = Profile.from_username(L.context, instagram)
-    private = profile.is_private  # bool
-    if(private):
-        return render(request, 'private.html', context= {'instagram': instagram})
+    #profile = Profile.from_username(L.context, instagram)
+    #private = profile.is_private  # bool
+    #if(private):
+    #   return render(request, 'private.html', context= {'instagram': instagram})
     user = Users(
         full_name = request.POST['full_name'],
         email = request.POST['email'],
@@ -110,7 +117,7 @@ def handle_uploaded_file(f,instagram):
 ###### Projecting the data from the database
 
 def profile_results(request):
-    instagram = 'lisa_nolan'
+    instagram = 'lisa_nolan' #'msikram'#
     user = Users.objects.get(instagram = instagram)
 
     id = user.id
@@ -121,16 +128,14 @@ def profile_results(request):
     media_count = user.media_count
     followers = user.followers
     following = user.following
+    private = user.private
 
     profile = {  # getting data from queryset
-        "full_name": full_name,
-        "email": email,
-        "npi_score": npi_score,
-        "biography": biography,
-        "media_count": media_count,
-        "followers": followers,
-        "following": following
+        "user": user
     }
+
+    if(private):
+        return render(request, "private.html", profile)  # {'data': json_context})
 
     posts = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
     likes = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(avg_likes=Avg('likes')).filter(user_id= id)

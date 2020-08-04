@@ -1,19 +1,29 @@
-{% extends "base.html" %}
+{% extends "include.html" %}
 {% block content %}
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-  <h1 class="display-4">{{user.full_name}}  </h1>
-  <p class="lead">{{user.instagram}}</p>
-    <p>
-    <!--npi_score = user.npi_score <br>-->
-    Biography : {{user.biography}}<br>
-    Media count : {{user.media_count}}<br>
-    Followers : {{user.followers}}<br>
-    Following : {{user.following}}</p>
-    <hr>
-</div>
 
-<div class="container">
-    <script>
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">Behavioral Stats</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="home.html">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">What we do</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">Contact Us</a>
+        </li>
+      </ul>
+      <p align="right"><a href="#"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
+    </div>
+  </nav>
+</header>
+<script>
 function find_element(arr,mnth){
 for (var oi = 0; oi < arr.length; oi++){
   if (arr[oi][0] == mnth)
@@ -194,8 +204,7 @@ function process_posts()
 
 }
 </script>
-
-  <script>
+<script>
   posts_dataArray = process_posts();
   data = process_pictures();
   picture_likes_data = data[0]
@@ -206,8 +215,6 @@ function process_posts()
 
 
 </script>
-
-</div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <!--  Displaying posts line graph  -->
   <script type="text/javascript">
@@ -223,7 +230,7 @@ function process_posts()
             slantedText:true,
             slantedTextAngle:90
           },
-          legend: { position: 'bottom' }
+          legend: { position: 'top' }
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
@@ -338,16 +345,37 @@ function process_posts()
   google.charts.setOnLoadCallback(drawPicturesChart);
 
 
-    </script>
-  <!--  Displaying Plots over HTML  -->
-<b>How frequent you shared on Instagram over the past months
-<div id="curve_chart" style="width: 900px; height: 500px"></div>
-How frequent your selfies recieved likes
-<div id="likes_pictures_chart" style="width: 1000px; height: 500px"></div>
-How were your emotions
-<div id="emotions_chart" style="width: 1000px; height: 500px"></div>
+</script>
+<main role="main">
 
-How frequent you your selfies
-<div id="pictures_chart" style="width: 1000px; height: 500px"></div>
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+  <h1 class="display-4">{{user.full_name}}  </h1>
+  <p class="lead">{{user.instagram}}</p>
+    <p>
+    <!--npi_score = user.npi_score <br>-->
+    Biography : {{user.biography}}<br>
+    Media count : {{user.media_count}}<br>
+    Followers : {{user.followers}}<br>
+    Following : {{user.following}}</p>
 
-{% endblock %}
+      </div>
+<hr class="featurette-divider">
+      <!--  Displaying Plots over HTML  -->
+    <table width="100%">
+        <tr><td>
+            <b>How frequent you shared on Instagram over the past months
+            <p id="curve_chart" style="width: 900px; height: 500px"></p>
+        </td><td>
+            <b>How were your emotions
+            <p id="emotions_chart" style="width: 1000px; height: 500px"></p>
+        </td></tr>
+        <tr><td>
+            <b>How frequent your selfies recieved likes
+            <p id="likes_pictures_chart" style="width: 1000px; height: 500px"></p></td>
+            <td>
+            <b>How frequent you your selfies
+            <p id="pictures_chart" style="width: 1000px; height: 500px"></p>
+            </td>
+        </tr>
+    </table>
+    {% endblock %}

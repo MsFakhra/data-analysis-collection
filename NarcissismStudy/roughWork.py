@@ -1,3 +1,25 @@
+
+
+
+
+
+#To check private accounts
+from instaloader import Instaloader, Profile
+L = Instaloader()
+instagram = "msikram"
+profile = Profile.from_username(L.context, instagram)
+private = profile.is_private  # bool
+
+print(private)
+
+public = False
+private = True
+
+
+exit(0)
+
+
+
 def checkpostdata(posts,mm,yy):
     for post in posts:
         starttuple = post

@@ -189,6 +189,9 @@ def extract_information(profilename):
     cur.execute(upsql)
     conn.commit()
 
+    if(private):
+        return private
+
     id = -1
     cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
     for row in cursor:
@@ -217,7 +220,9 @@ def extract_information(profilename):
         cur.execute(upsql)
         conn.commit()
 
-    print(profilename + "complete")
+    print("public profile " + profilename + "complete")
+    return private
+
 
 def extract_posts(profile,profilepath):
     # Obtain posts sorted w.r.t date
