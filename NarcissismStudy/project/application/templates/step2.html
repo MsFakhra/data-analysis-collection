@@ -5,7 +5,6 @@
   <h1 class="display-4">Questionnaire  </h1>
   <p class="lead">Thanks for signing up. Many filled the following questionaire, and know about their personality, spare few minutes to do so. </p>
 </div>
-
 <div class="container">
 
   <div class="card-deck mb-3 text-center">
@@ -16,7 +15,6 @@
       <div class="card-body">
         <form class="needs-validation" novalidate action="thankyou" method="post" enctype="multipart/form-data">
           {% csrf_token %}
-
           <div class="container grid-striped">
             {% for question in questionList %}
               <div class="row border" style="height:50px;">

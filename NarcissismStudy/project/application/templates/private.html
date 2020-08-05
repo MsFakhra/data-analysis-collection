@@ -10,13 +10,13 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="home.html">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">What we do</a>
+          <a class="nav-link" href="{% url 'whatwedo' %}">What we do</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">Contact Us</a>
+          <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1">Contact Us</a>
         </li>
       </ul>
       <p align="right"><a href="#"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
@@ -41,7 +41,7 @@
           Media count : {{user.media_count}}<br>
           Followers : {{user.followers}}<br>
           Following : {{user.following}}</p>
-          <hr>
+          <hr class="featurette-divider">
       </div>
 
     <!-- /END THE FEATURETTES -->

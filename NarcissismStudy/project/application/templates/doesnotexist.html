@@ -1,0 +1,354 @@
+{% extends "include.html" %}
+{% block content %}
+
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="{% url 'home' %}">Behavioral Stats</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'whatwedo' %}">What we do</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1" aria-disabled="true">Contact Us</a>
+        </li>
+      </ul>
+      <p align="right"><a href="{% url 'register' %}"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
+    </div>
+  </nav>
+</header>
+<script>
+function find_element(arr,mnth){
+for (var oi = 0; oi < arr.length; oi++){
+  if (arr[oi][0] == mnth)
+  return arr[oi][1]
+  }
+  return 0;
+
+}
+
+function find_month(comments_array,mnth)
+{
+for (var oi = 0; oi < comments_array.length; oi++){
+  if (comments_array[oi][0] == mnth)
+    return true;
+  }
+  return false;
+}
+
+function process_likes()
+{ /*returns the normalized number of likes*/
+  likes_dataArray = [['Date','avg_likes']]
+  //maximum likes obtained
+  max = -1
+  dataArray = []
+  {% for obj in likes %}
+    dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.avg_likes}}]);
+    if({{obj.avg_likes}} > max)
+       max = {{obj.avg_likes}}
+  {% endfor %}
+
+  //normalization
+  for (var index = 0; index < dataArray.length; index ++)
+  {
+    mnth = dataArray[index][0]
+    val = dataArray[index][1] / max
+    likes_dataArray.push([mnth, val])
+  }
+  return likes_dataArray
+}
+function process_comments()
+{ /*returns the normalized data of pictures vs likes */
+ ///processing likes
+  likes_dataArray = process_likes()
+  /////processing pictures
+  var comments_dataArray = [['Date','Anger', 'Fear', 'Sadness', 'Negative', 'Neutral', 'Analytical', 'Joy', 'Positive']]
+  comments_array = []
+  var analytical_dataArray = []
+  var anger_dataArray = []
+  var fear_dataArray = []
+  var sadness_dataArray = []
+  var negative_dataArray = []
+  var neutral_dataArray = []
+  var joy_dataArray = []
+  var positive_dataArray = []
+
+  {% for obj in comments %}
+    mnth =  '{{obj.month|date:'M-Y'}}'
+    isavailable = find_month(comments_array,mnth)
+    if (!isavailable)
+        comments_array.push(['{{obj.month|date:'M-Y'}}']);
+    if('{{obj.sentiment}}' == 'Analytical')
+        analytical_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Anger')
+        anger_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Fear')
+        fear_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Sadness')
+        sadness_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Negative')
+        negative_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Neutral')
+        neutral_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Joy')
+        joy_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+    else if('{{obj.sentiment}}' == 'Positive')
+        positive_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+  {% endfor %}
+
+  //normalization
+  max = -1
+  for (var index = 0; index < comments_array.length; index ++){
+      mnth = comments_array[index][0]
+      likes = find_element(likes_dataArray,mnth)
+      analytical = find_element(analytical_dataArray,mnth)
+      anger = find_element(anger_dataArray,mnth)
+      fear = find_element(fear_dataArray,mnth)
+      sadness = find_element(sadness_dataArray,mnth)
+      negative = find_element(negative_dataArray,mnth)
+      neutral = find_element(neutral_dataArray,mnth)
+      joy = find_element(joy_dataArray,mnth)
+      positive = find_element(positive_dataArray,mnth)
+      sum = analytical+anger+fear+sadness+negative+neutral+joy+positive
+      if (sum > max)
+        max = sum
+  }
+
+  for (var index = 0; index < comments_array.length; index ++){
+      mnth = comments_array[index][0]
+      likes = find_element(likes_dataArray,mnth)
+      analytical = find_element(analytical_dataArray,mnth)
+      anger = find_element(anger_dataArray,mnth)
+      fear = find_element(fear_dataArray,mnth)
+      sadness = find_element(sadness_dataArray,mnth)
+      negative = find_element(negative_dataArray,mnth)
+      neutral = find_element(neutral_dataArray,mnth)
+      joy = find_element(joy_dataArray,mnth)
+      positive = find_element(positive_dataArray,mnth)
+      sum = analytical+anger+fear+sadness+negative+neutral+joy+positive
+      comments_dataArray.push([mnth,anger,fear,sadness,negative,neutral,analytical,joy,positive])
+  }
+
+  //normalization
+  return comments_dataArray
+}
+function process_pictures()
+{ /*returns the normalized data of pictures vs likes */
+ ///processing likes
+  likes_dataArray = process_likes()
+  /////processing pictures
+  var pictures_dataArray = [['Date','Selfie','Others']]
+  var selfie_dataArray = []
+  var others_dataArray = []
+
+  {% for obj in pictures %}
+    if('{{obj.person}}' != 'Others')
+    selfie_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}},'{{obj.person}}']);
+    else
+    others_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}},'{{obj.person}}']);
+  {% endfor %}
+  ol = others_dataArray.length
+  sl = selfie_dataArray.length
+  if (sl >= ol){
+    for (var index = 0; index < selfie_dataArray.length; index ++){
+      mnth = selfie_dataArray[index][0]
+      elem = find_element(others_dataArray,mnth)
+      pictures_dataArray.push([mnth, selfie_dataArray[index][1],elem])
+    }
+  }
+  else
+  {
+    for (var index = 0; index < others_dataArray.length; index ++){
+        mnth = others_dataArray[index][0]
+        elem = find_element(selfie_dataArray,mnth)
+        pictures_dataArray.push([mnth, elem, others_dataArray[index][1]])
+    }
+  }
+  //normalization
+  max = -1
+  for (var index = 1; index < pictures_dataArray.length; index ++){
+     self = pictures_dataArray[index][1]
+     othr = pictures_dataArray[index][2]
+     val = self + othr
+     if(self > max)
+        max = self
+  }
+  normalized_likes_array = [['Date','Selfie','Avg_Likes']]
+
+  for (var index = 1; index < pictures_dataArray.length; index ++){
+     mnth = pictures_dataArray[index][0]
+     self = pictures_dataArray[index][1]/max;
+     likes = find_element(likes_dataArray,mnth)
+     normalized_likes_array.push([mnth, self, likes])
+  }
+  return [normalized_likes_array,pictures_dataArray]
+}
+
+
+
+
+function process_posts()
+{
+  /////////////////Creating dataArray for posts
+  var posts_dataArray = [['Date', 'Posts Shared']]
+  {% for obj in posts %}
+    posts_dataArray.push(['{{obj.month|date:'M-Y'}}',{{obj.total}}]);
+  {% endfor %}
+  return posts_dataArray;
+
+}
+</script>
+<script>
+  posts_dataArray = process_posts();
+  data = process_pictures();
+  picture_likes_data = data[0]
+  pictures_data = data[1];
+  comments_data = process_comments()
+  console.log(comments_data)
+
+
+
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<!--  Displaying posts line graph  -->
+  <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+         var posts_data = google.visualization.arrayToDataTable(posts_dataArray);
+         var options = {
+          curveType: 'function',
+          hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+          },
+          legend: { position: 'top' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+        chart.draw(posts_data, options);
+      };
+      </script>
+<!--  Displaying comments and avg likes graph  -->
+<script>
+
+//drawing bar plot with sentiments
+
+      function drawSentimentsChart() {
+      var data = google.visualization.arrayToDataTable(comments_data);
+            const options = {
+      legend:  { position: 'top' },
+      hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+      },
+      isStacked:true,
+      seriesType: 'bars',
+      series:
+      {
+      0:{ color: '#FF0000' },
+      1: { color: '#F4D03F' },
+      2:{ color: '#3498DB' },
+      3:{ color: '#A569BD' },
+      4:{ color: '#2ECC71' },
+      5:{ color: '#16A085' },
+      6:{ color: '#D35400' },
+      7:{ color: 'C75454' }
+      }
+      };
+
+   const elem = document.getElementById('emotions_chart');
+   const chart = new google.visualization.ColumnChart(elem);
+   chart.draw(data, options);
+  }
+  google.charts.load('current', { packages: ['bar'] });
+  google.charts.setOnLoadCallback(drawSentimentsChart);
+
+
+    </script>
+
+<!--  Displaying pictures and avg likes graph  -->
+<script>
+
+//drawing bar plot with pictures
+
+      function drawLikesonPicturesChart() {
+      var data = google.visualization.arrayToDataTable(picture_likes_data);
+      const colors = [
+         { color: '#CD5C5C' },  //selfie
+         { color: '#F08080' },      //other
+         ];
+      const options = {
+      legend:  { position: 'top' },
+      hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+      },
+      vAxis:{
+          title: '%age',
+          format:'#%'
+      },
+      seriesType: 'bars',
+      series: {
+        0:{ color: '#7FB3D5' },
+        1:{
+          type: 'line',
+          color: '3D4CBB'
+          }
+        }
+      };
+
+   const elem = document.getElementById('likes_pictures_chart');
+   const chart = new google.visualization.ComboChart(elem);
+   chart.draw(data, options);
+  }
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawLikesonPicturesChart);
+
+
+    </script>
+<!-- drawing stacked column plot with pictures -->
+<script>
+      function drawPicturesChart() {
+      var data = google.visualization.arrayToDataTable(pictures_data);
+      const colors = [
+         { color: '#5499C7' },  //selfie
+         { color: '#7FB3D5' },      //other
+         ];
+      const options = {
+      legend:  { position: 'top' },
+      hAxis: {
+            direction:1,
+            slantedText:true,
+            slantedTextAngle:90
+      },
+      isStacked:true,
+      seriesType: 'bars',
+      series: colors
+      };
+
+   const elem = document.getElementById('pictures_chart');
+   const chart = new google.visualization.ColumnChart(elem);
+   chart.draw(data, options);
+  }
+  google.charts.load('current', { packages: ['bar'] });
+  google.charts.setOnLoadCallback(drawPicturesChart);
+
+
+</script>
+<main role="main">
+
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+
+  <p class="lead"> The user with {{id}} does not exist in our database, please sign up to see your results. </p> </div>
+{% endblock %}

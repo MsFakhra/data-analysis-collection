@@ -21,6 +21,8 @@ def whatwedo(request):
 def contactus(request):
     return render(request, 'contactus.html', {})
 
+def register(request):
+    return render(request, 'register.html', {})
 def step2(request):
     instagram = request.POST['instagram']
 
@@ -80,6 +82,7 @@ def step2(request):
     return render(request, 'step2.html', {'questionList':  questionList})
 
 def thankyou(request):
+    #request.POST['question_'
     i=1;
     score=0
     while i < 41:
@@ -110,42 +113,42 @@ def handle_uploaded_file(f,instagram):
 ###### Projecting the data from the database
 
 def profile_results(request):
-    instagram = 'lisa_nolan' #'msikram'#
-    user = Users.objects.get(instagram = instagram)
+    id = request.GET['id']
+    try:
+        user = Users.objects.get(id=id)
+        instagram = user.instagram
+        private = user.private
+        print(private)
+        profile = {  # getting data from queryset
+            "user": user
+        }
 
-    id = user.id
-    full_name = user.full_name
-    email = user.email
-    npi_score = user.npi_score
-    biography = user.biography
-    media_count = user.media_count
-    followers = user.followers
-    following = user.following
-    private = user.private
+        if (private):
+            return render(request, "private.html", profile)  # {'data': json_context})
+        else:
+            posts = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(
+                total=Count('user_id')).filter(user_id=id)
+            likes = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(
+                avg_likes=Avg('likes')).filter(user_id=id)
+            pictures = Picture.objects.annotate(month=TruncMonth('posted_on')).values('month', 'person').annotate(
+                total=Count('instagram')).filter(instagram=id)
+            comments = Comment.objects.annotate(month=TruncMonth('posted_on')).values('month', 'sentiment').annotate(
+                total=Count('owner')).filter(owner=instagram)
+            for row in comments:
+                print(row)
+            json_context = {
+                "user": user,
+                "posts": posts,
+                "likes": likes,
+                "pictures": pictures,
+                "comments": comments
+            }
 
-    profile = {  # getting data from queryset
-        "user": user
-    }
+            return render(request, "profile_results.html", json_context)  # {'data': json_context})
+    except Users.DoesNotExist:
+        json_context = {"id": id}
 
-    if(private):
-        return render(request, "private.html", profile)  # {'data': json_context})
-
-    posts = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(total=Count('user_id')).filter(user_id= id)
-    likes = Posts.objects.annotate(month=TruncMonth('posted_on')).values('month').annotate(avg_likes=Avg('likes')).filter(user_id= id)
-    pictures = Picture.objects.annotate(month=TruncMonth('posted_on')).values('month','person').annotate(total=Count('instagram')).filter(instagram = id)
-    comments = Comment.objects.annotate(month=TruncMonth('posted_on')).values('month', 'sentiment').annotate(
-        total=Count('owner')).filter(owner = instagram)
-    for row in comments:
-        print(row)
-    json_context = {
-        "user":user,
-        "posts":posts,
-        "likes":likes,
-        "pictures": pictures,
-        "comments":comments
-    }
-
-    return render(request, "profile_results.html", json_context)# {'data': json_context})
+        return render(request, "doesnotexist.html",json_context)
 
 def get_non_selfie_score(nselfie,val):
     for dic in nselfie:

@@ -177,51 +177,63 @@ def extract_information(profilename):
     followees   = profile.followees
     private = profile.is_private #bool
     #Updating user table with information
-    upsql = "UPDATE application_users SET " \
+    if(private):
+        upsql = "UPDATE application_users SET " \
             "biography = '" + biography + "'," \
             "media_count = " + str(media_count) + "," \
             "followers = " + str(followers) + "," \
             "following = " + str(followees) + "," \
             "private = '" + str(private) + "'," \
-            "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
-    print(upsql)
-    cur = conn.cursor()
-    cur.execute(upsql)
-    conn.commit()
-
-    if(private):
+            "state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
+        print(upsql)
+        cur = conn.cursor()
+        cur.execute(upsql)
+        conn.commit()
         return private
-
-    id = -1
-    cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
-    for row in cursor:
-        id = row[0]
-
-    image_processed = False
-    posts_processed = False
-    posts = extract_posts(profile,profilepath)
-    print("posts extracted")
-    posts_processed = process_posts(posts,profilename,id)
-    print(posts_processed)
-
-    ########## Image Processing ###########
-    # Here check if record is already in DB then no need to train for images then
-    #model_save_path = "./model/model.txt"
-    #knn_clf = train('TrainingDataset',model_save_path)
-
-    if(posts):
-        image_processed = process_Images(profilename,id)#,model_save_path)
-        print("images processed")
     else:
-        image_processed == True
-    if posts_processed == True and image_processed == True:
-        upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
+        upsql = "UPDATE application_users SET " \
+                "biography = '" + biography + "'," \
+                "media_count = " + str(media_count) + "," \
+                "followers = " + str(followers) + "," \
+                "following = " + str(followees) + "," \
+                "private = '" + str(private) + "'," \
+                "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
+        print(upsql)
         cur = conn.cursor()
         cur.execute(upsql)
         conn.commit()
 
-    print("public profile " + profilename + "complete")
-    return private
+
+        id = -1
+        cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
+        for row in cursor:
+            id = row[0]
+
+        image_processed = False
+        posts_processed = False
+        posts = extract_posts(profile,profilepath)
+        print("posts extracted")
+        posts_processed = process_posts(posts,profilename,id)
+        print(posts_processed)
+
+        ########## Image Processing ###########
+        # Here check if record is already in DB then no need to train for images then
+        #model_save_path = "./model/model.txt"
+        #knn_clf = train('TrainingDataset',model_save_path)
+
+        if(posts):
+            image_processed = process_Images(profilename,id)#,model_save_path)
+            print("images processed")
+        else:
+            image_processed == True
+        if posts_processed == True and image_processed == True:
+            upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
+            cur = conn.cursor()
+            cur.execute(upsql)
+            conn.commit()
+
+        print("public profile " + profilename + "complete")
+        return private
 
 
 def extract_posts(profile,profilepath):

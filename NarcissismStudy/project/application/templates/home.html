@@ -19,7 +19,7 @@
           <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1" aria-disabled="true">Contact Us</a>
         </li>
       </ul>
-      <p align="right"><a href="#"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
+      <p align="right"><a href="{% url 'register' %}"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
     </div>
   </nav>
 </header>
@@ -85,7 +85,7 @@
       </div><!-- /.col-lg-4 -->
 
     </div><!-- /.row -->
-    <p align="right"><a class="btn btn-secondary" href="#" role="button">&Lang; Click here to fill the form &Rang;</a></p>
+    <p align="right"><a class="btn btn-secondary" href="{% url 'register' %}" role="button">&Lang; Click here to fill the form &Rang;</a></p>
 
     <!-- START THE FEATURETTES -->
 
