@@ -1,87 +1,60 @@
 {% extends "include.html" %}
 {% block content %}
-
-<header>
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="{% url 'home' %}">Behavioral Stats</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="{% url 'whatwedo' %}">What we do</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1" aria-disabled="true">Contact Us</a>
-        </li>
-      </ul>
-      <p align="right"><a href="#"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
-    </div>
-  </nav>
-</header>
-
-
-<main role="main">
-
-    <!-- START THE FEATURETTES -->
-
-
-    <div class="row featurette">
-      <div class="col-md-7">
-        <h2 class="featurette-heading"><br>Know Yourself</h2>
-        <p class="lead">To signup please make sure, you share your:</p>
-        <ul class = "ref">
-          <li>Full name</li>
-          <li>Email</li>
-          <li>public Instagram ID</li>
-          <li>a selfie, which contains a complete face</li>
-        </ul>
+  <hr class="featurette-divider">
+  <div class="container marketing">
+    <div class="row">
+      <div class="col-lg-12" align="center">
+        <!-- Questionaire -->
+        <div class="card-deck mb-3 text-center">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">Personal Information </h4>
+            </div>
+            <div class="card-body">
+              <!-- Form -->
+                <form class="needs-validation" novalidate action="{% url 'step2'  %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                <div class="mb-3">
+                  <label for="full_name">Full Name <span class="text-muted"></span></label>
+                  <input type="text" class="form-control" id="full_name" name="full_name" required>
+                  <div class="invalid-feedback">
+                    Please enter your name.
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="email">Email <span class="text-muted"></span></label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+                  <div class="invalid-feedback">
+                    Please enter a valid email address.
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="instagram">Instagram ID <span class="text-muted"></span></label>
+                  <input type="text" class="form-control" id="instagram" name="instagram" required>
+                  <div class="invalid-feedback">
+                    Please enter your instagram ID.
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="selfie">Selfie <span class="text-muted"></span></label>
+                  <input type="file" class="form-control" id="selfie" name="selfie" required>
+                  <div class="invalid-feedback">
+                    Please enter a valid email address for shipping updates.
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-lg btn-block btn-secondary">Proceed</button>
+                </form>
+              <!-- End-Form -->
+            </div>
+          </div>
+        <!-- End Questionaire -->
       </div>
-      <div class="col-md-5" >
-
-        <form class="needs-validation" novalidate action="{% url 'step2'  %}" method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-        <div class="mb-3">
-          <label for="full_name">Full Name <span class="text-muted"></span></label>
-          <input type="text" class="form-control" id="full_name" name="full_name" required>
-          <div class="invalid-feedback">
-            Please enter your name.
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="email">Email <span class="text-muted"></span></label>
-          <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
-          <div class="invalid-feedback">
-            Please enter a valid email address.
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="instagram">Instagram ID <span class="text-muted"></span></label>
-          <input type="text" class="form-control" id="instagram" name="instagram" required>
-          <div class="invalid-feedback">
-            Please enter your instagram ID.
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="selfie">Selfie <span class="text-muted"></span></label>
-          <input type="file" class="form-control" id="selfie" name="selfie" required>
-          <div class="invalid-feedback">
-            Please enter a valid email address for shipping updates.
-          </div>
-        </div>
-        <button type="submit" class="btn btn-lg btn-block btn-secondary">Proceed</button>
-        </form>
-      </div>
-    </div>
+    </div><!-- /.row -->
     <hr class="featurette-divider">
-
-    <!-- /END THE FEATURETTES -->
-
   </div><!-- /.container -->
-
-</html>
+  <style>
+    .grid-striped .row:nth-of-type(odd) {
+      background-color: rgba(0,0,0,.05);
+    }
+  </style>
 {% endblock %}

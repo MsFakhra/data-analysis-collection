@@ -1,47 +1,46 @@
-{% extends "base.html" %}
+{% extends "include.html" %}
 {% block content %}
-
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-  <h1 class="display-4">Questionnaire  </h1>
-  <p class="lead">Thanks for signing up. Many filled the following questionaire, and know about their personality, spare few minutes to do so. </p>
-</div>
-<div class="container">
-
-  <div class="card-deck mb-3 text-center">
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header">
-        <h4 class="my-0 font-weight-normal">Questionaire </h4>
-      </div>
-      <div class="card-body">
-        <form class="needs-validation" novalidate action="thankyou" method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="container grid-striped">
-            {% for question in questionList %}
-              <div class="row border" style="height:50px;">
-                <div class="col-1 d-felx my-auto">
-                  {{ forloop.counter }}
+  <hr class="featurette-divider">
+  <div class="container marketing">
+    <div class="row">
+      <div class="col-lg-12" align="center">
+        <!-- Questionaire -->
+        <div class="card-deck mb-3 text-center">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">Questionaire </h4>
+            </div>
+            <div class="card-body">
+              <form class="needs-validation" novalidate action="thankyou" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="container grid-striped">
+                  {% for question in questionList %}
+                    <div class="row border" style="height:50px;">
+                      <div class="col-1 d-felx my-auto">
+                        {{ forloop.counter }}
+                      </div>
+                      <div class="col-sm d-flex my-auto">
+                        <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.2 }}">  {{ question.0 }} </span>
+                      </div>
+                      <div class="col-sm d-flex my-auto">
+                        <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.3 }}">  {{ question.1 }} </span>
+                      </div>
+                    </div>
+                  {% endfor %}
                 </div>
-                <div class="col-sm d-flex my-auto">
-                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.2 }}">  {{ question.0 }} </span>
-                </div>
-                <div class="col-sm d-flex my-auto">
-                  <span class="ml-2 align-middle"><input type="radio" name="question_{{ forloop.counter }}" value="{{ question.3 }}">  {{ question.1 }} </span>
-                </div>
-              </div>
-            {% endfor %}
+                <br>
+                <button type="submit" class="btn btn-lg btn-block btn-primary">Proceed</button>
+              </form>
+            </div>
           </div>
-          <br>
-          <button type="submit" class="btn btn-lg btn-block btn-primary">Proceed</button>
-        </form>
+        <!-- End Questionaire -->
       </div>
-    </div>
-  </div>
-    {% load static %}
-  </body>
+    </div><!-- /.row -->
+    <hr class="featurette-divider">
+  </div><!-- /.container -->
   <style>
     .grid-striped .row:nth-of-type(odd) {
       background-color: rgba(0,0,0,.05);
     }
   </style>
-</html>
 {% endblock %}
