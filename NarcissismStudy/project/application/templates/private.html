@@ -3,7 +3,7 @@
 
 <header>
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="#">Behavioral Stats</a>
+    <a class="navbar-brand" href="{% url 'home' %}">Behavioral Stats</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -19,7 +19,7 @@
           <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1">Contact Us</a>
         </li>
       </ul>
-      <p align="right"><a href="#"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
+      <p align="right"><a href="{% url 'register' %}"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
     </div>
   </nav>
 </header>
