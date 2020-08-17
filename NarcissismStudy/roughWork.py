@@ -1,8 +1,85 @@
+import sqlite3
+conn = sqlite3.connect('project/db.sqlite3')
+
+
+import smtplib
+from string import Template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+MY_ADDRESS = 'behavioralstats@outlook.com'
+PASSWORD = 'Amsterdam1234'
+
+def read_template(filename):
+    """
+    Returns a Template object comprising the contents of the
+    file specified by filename.
+    """
+
+    with open(filename, 'r', encoding='utf-8') as template_file:
+        template_file_content = template_file.read()
+    return Template(template_file_content)
+def send_email(id):
+    if(id == -1):
+        return
+    outsql = "SELECT * FROM application_users WHERE id =" + str(id) + ";"
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        email = row[2]
+        name = row[1]
+        print(email)
+    message_template = read_template('message.txt')
+
+    # set up the SMTP server
+    s = smtplib.SMTP(host='smtp-mail.outlook.com', port=587) #smtplib.SMTP(host='your_host_address_here', port=your_port_here)
+    s.starttls()
+    s.login(MY_ADDRESS, PASSWORD)
+
+    msg = MIMEMultipart()  # create a message
+
+    message = message_template.substitute(PERSON_NAME=name.title())
+
+    # Prints out the message body for our sake
+    print(message)
+
+    # setup the parameters of the message
+    msg['From'] = MY_ADDRESS
+    msg['To'] = email
+    msg['Subject'] = "This is TEST"
+
+    # add in the message body
+    msg.attach(MIMEText(message, 'plain'))
+
+    # send the message via the server set up earlier.
+    s.send_message(msg)
+    del msg
+
+    # Terminate the SMTP session and close the connection
+    s.quit()
+
+profilename = 'diipakhosla'
+profilepath = profilename  # Obtain profile
+
+name = 'diipakhosla'
+id = 223
+
+
+outsql = "SELECT * FROM application_users WHERE id =" + str(id) + ";"
+i= 0
+cursor = conn.execute(outsql)
+for row in cursor:
+    i +=1
+    print(row)
+
+print(i)
+send_email(id)
+
+exit(0)
 
 
 
 
-
+exit(0)
 #To check private accounts
 from instaloader import Instaloader, Profile
 L = Instaloader()

@@ -14,6 +14,10 @@ from face_recognition import face_locations
 from face_recognition.face_detection_cli import image_files_in_folder
 import sqlite3
 
+import smtplib
+from string import Template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 #Tone Analysis
 from watson_developer_cloud import ToneAnalyzerV3
@@ -162,38 +166,121 @@ UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
 #SINCE = datetime(2018, 8, 5)    #yyyy-mm-dd 18/10/18
 #UNTIL = datetime(2018, 8, 7)    #yyyy-mm-dd 2020-05-30
 
+MY_ADDRESS = 'behavioralstats@outlook.com'
+PASSWORD = 'Amsterdam1234'
+def read_template(filename):
+    """
+    Returns a Template object comprising the contents of the
+    file specified by filename.
+    """
 
-def extract_information(profilename):
+    with open(filename, 'r', encoding='utf-8') as template_file:
+        template_file_content = template_file.read()
+    return Template(template_file_content)
+def send_email(id):
+    if (id == -1):
+        return
+    outsql = "SELECT * FROM application_users WHERE id =" + str(id) + ";"
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        email = row[2]
+        name = row[1]
+        id = row[0]
+        if name is None or email is None:
+            return
+    message_template = read_template('message.txt')
+
+    # set up the SMTP server
+    s = smtplib.SMTP(host='smtp-mail.outlook.com',
+                     port=587)  # smtplib.SMTP(host='your_host_address_here', port=your_port_here)
+    s.starttls()
+    s.login(MY_ADDRESS, PASSWORD)
+
+    msg = MIMEMultipart()  # create a message
+
+    message = message_template.substitute(PERSON_NAME=name.title(), ID = id)
+
+
+    # Prints out the message body for our sake
+    print(message)
+
+    # setup the parameters of the message
+    msg['From'] = MY_ADDRESS
+    msg['To'] = email
+    msg['Subject'] = "Results are ready"
+
+    # add in the message body
+    msg.attach(MIMEText(message, 'plain'))
+
+    # send the message via the server set up earlier.
+    s.send_message(msg)
+    del msg
+
+    # Terminate the SMTP session and close the connection
+    s.quit()
+
+def extract_information(id):
     #here create the basic model for user info; NPI is not here
     #path is image path
+    cursor = conn.execute("SELECT instagram from application_users WHERE id =" + str(id) + ";")
+    for row in cursor:
+        profilename = row[0]
+
     profilepath = profilename    # Obtain profile
     profile     = Profile.from_username(L.context, profilename)
     followers   = profile.followers
-    name        = profile.full_name
+    full_name        = profile.full_name
     biography   = profile.biography
     media_count = profile.mediacount
     followees   = profile.followees
-    public = profile.is_private
+    not_public = profile.is_private
+    send_email(id)
+    #exit(0) #########################################3
+    if(not_public):
+        private = 1
+    else:
+        private = 0
 
     #Updating user table with information
     upsql = "UPDATE application_users SET " \
+            "full_name = '" + full_name + "'," \
             "biography = '" + biography + "'," \
             "media_count = " + str(media_count) + "," \
             "followers = " + str(followers) + "," \
             "following = " + str(followees) + "," \
-            "public = " + str(public) + "," \
-            "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
+            "private = " + str(private) + "," \
+            "state = '" + 'processing' + "' WHERE id =" + str(id) + ";"
     print(upsql)
     cur = conn.cursor()
     cur.execute(upsql)
     conn.commit()
 
-    if(profile.is_private):
-        print("profile is private")
-    id = -1
-    cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
-    for row in cursor:
-        id = row[0]
+    if(private):
+        upsql = "UPDATE application_users SET " \
+                "biography = '" + biography + "'," \
+                "media_count = " + str(media_count) + "," \
+                "followers = " + str(followers) + "," \
+                "following = " + str(followees) + "," \
+                "private = '" + str(private) + "'," \
+                "state = '" + 'processed' + "' WHERE id =" + str(id) + ";"
+        print(upsql)
+        cur = conn.cursor()
+        cur.execute(upsql)
+        conn.commit()
+
+        send_email(id)
+    else:
+        upsql = "UPDATE application_users SET " \
+                "biography = '" + biography + "'," \
+                "media_count = " + str(media_count) + "," \
+                "followers = " + str(followers) + "," \
+                "following = " + str(followees) + "," \
+                "private = '" + str(private) + "'," \
+                "state = '" + 'processing' + "' WHERE id =" + str(id) + ";"
+        print(upsql)
+        cur = conn.cursor()
+        cur.execute(upsql)
+        conn.commit()
 
     image_processed = False
     posts_processed = False
@@ -213,12 +300,15 @@ def extract_information(profilename):
     else:
         image_processed == True
     if posts_processed == True and image_processed == True:
-        upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
+        upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE id =" + str(id) + ";"
         cur = conn.cursor()
         cur.execute(upsql)
         conn.commit()
+        send_email(id)
 
-    print(profilename + "complete")
+    print(profilename + "complete and id" + id)
+
+
 def extract_posts(profile,profilepath):
     # Obtain posts sorted w.r.t date
     '''
@@ -826,7 +916,7 @@ import os
 import pathlib
 
 def startjob():
-    list = ["nadiamaya_","msikram"]#"fridacaarlson","saanieee"]#"nlb_.x", "lydiaajacksonx","kerry.linney"]#"emzohorne","louannvecchia","oliviameikle_"]
+    list = ["msikram"]#"nadiamaya_","msikram"]#"fridacaarlson","saanieee"]#"nlb_.x", "lydiaajacksonx","kerry.linney"]#"emzohorne","louannvecchia","oliviameikle_"]
     done = ["nadiamaya_","annam.ahmad","diipakhosla","chloescantlebury","emilybahr","thearoberts","imymann"]
     done2 = ["lisa_nolan", "amelia_goodman","chloescantlebury","emilybahr","thearoberts","imymann","diipakhosla"]
     non_business = ["emilybahr","thearoberts"]
@@ -835,20 +925,24 @@ def startjob():
     processed = False
     for instagram in list:
         print(instagram)
-        cursor = conn.execute("SELECT state from application_users WHERE instagram ='" + instagram + "';")
+        cursor = conn.execute("SELECT id,state from application_users WHERE instagram ='" + instagram + "';")
         for row in cursor:
-            status = row[0]
+            id = row[0]
+            status = row[1]
             if (status == 'pending'):
-                extract_information(instagram)
+                extract_information(id)
             processed = True
         if(processed == False):
-            insql = "INSERT INTO application_users (instagram,state,created_at) " \
-                   "VALUES ('%s','pending','%s')" \
+            insql = "INSERT INTO application_users (instagram,state,created_at,private) " \
+                   "VALUES ('%s','pending','%s','0')" \
                     % (instagram,datetime.now())
             print(insql)
             conn.execute(insql)
             conn.commit()
-            extract_information(instagram)
+            cursor = conn.execute("SELECT id,state from application_users WHERE instagram ='" + instagram + "';")
+            for row in cursor:
+                id = row[0]
+            extract_information(id)
 
 
 if __name__ == '__main__':

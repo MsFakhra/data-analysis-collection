@@ -1,0 +1,8 @@
+Dear ${PERSON_NAME},
+
+Please click here for the results http://www.behavioralstats.com/results?id=${ID}
+
+Have a great time!
+
+Yours Truly,
+Behavioral Stats
