@@ -126,7 +126,7 @@ fear = [128552,128561]
 
 L = Instaloader()
 analyzer = initializeAnalyzer()  #sentiment analyzer
-knn_clf = train('TrainingDataset') #image knn classifier
+knn_clf = train('project/application/static/media') #image knn classifier
 conn = sqlite3.connect('project/db.sqlite3') #Database
 #print("Opened database successfully")
 
