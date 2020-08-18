@@ -16,19 +16,29 @@
           <a class="nav-link" href="{% url 'whatwedo' %}">What we do</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1" aria-disabled="true">Contact Us</a>
+          <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1">Contact Us</a>
         </li>
       </ul>
-      <p align="right"><a href="{% url 'register' %}"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
+      <p align="right"><a href="#"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
     </div>
   </nav>
 </header>
+
 <main role="main">
 
-    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <!-- START THE FEATURETTES -->
 
-      <p class="lead"> You are seeing this because:</p>
-      <li>This user does not exist in our records. Please sign up to our website to use our services</li>
-      <li>Link is broken. Please send us an <a href="mailto:f.jabeen@vu.nl">email</a>.</li>
-    </div>
+
+    <div class="row featurette">
+      <div class="col-md-7" align="center">
+        <hr class="featurette-divider">
+        <h1 class="display-4">Processing...  </h1>
+        <p class="lead">Data for this profile is being processed, please try again later.</p>
+          <hr class="featurette-divider">
+      </div>
+
+    <!-- /END THE FEATURETTES -->
+
+  </div><!-- /.container -->
+
 {% endblock %}

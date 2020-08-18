@@ -14,16 +14,23 @@ import face_recognition
 from face_recognition import face_locations
 from face_recognition.cli import image_files_in_folder
 #from face_recognition.face_detection_cli import image_files_in_folder
+
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 import sqlite3
 
-
+import smtplib
+from string import Template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+#######initializations
 #Tone Analysis
 from watson_developer_cloud import ToneAnalyzerV3
 apikey = 'Sst3Vq2D221Alx-YbgLNtwOyu5fywKtaL2rl8NSl9-m3'#'wGySQLw3nxEOhEirYSvAZScum9v_1_VoA8lKZYMi6ip-'
 urlref = 'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/2ba5653f-b626-495a-9efc-c9e3f6428c59'#'https://api.eu-gb.tone-analyzer.watson.cloud.ibm.com/instances/618c6917-36fa-4dd7-a10b-8df2ed184446'
 version = '2/25/2020'#'2020-02-20'#'2020-02-21'
 
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 vanalyzer = SentimentIntensityAnalyzer()
 #Prereqs
 # Text
@@ -96,9 +103,11 @@ def train(train_dir, model_save_path = "", n_neighbors = None, knn_algo = 'ball_
             pickle.dump(knn_clf, f)
     return knn_clf
 
+##Email
+MY_ADDRESS = 'behavioralstats@outlook.com'
+PASSWORD = 'Amsterdam1234'
 
 
-#######initializations
 #ref: https://www.codetable.net/unicodecharacters?page=89
 #ref: https://www.codetable.net/unicodecharacters?page=89
 happy = [128513,128514,128515,128516,128517,128518,128519,128520,128521,128522,128523,128524
@@ -163,33 +172,104 @@ UNTIL = datetime(2019, 12, 31)    #yyyy-mm-dd 2020-05-30
 #Debugging
 #SINCE = datetime(2018, 8, 5)    #yyyy-mm-dd 18/10/18
 #UNTIL = datetime(2018, 8, 7)    #yyyy-mm-dd 2020-05-30
+def read_template(filename):
+    """
+    Returns a Template object comprising the contents of the
+    file specified by filename.
+    """
 
+    with open(filename, 'r', encoding='utf-8') as template_file:
+        template_file_content = template_file.read()
+    return Template(template_file_content)
+def send_email(id):
+    if (id == -1):
+        return
+    outsql = "SELECT * FROM application_users WHERE id =" + str(id) + ";"
+    cursor = conn.execute(outsql)
+    for row in cursor:
+        email = row[2]
+        name = row[1]
+        if name is None or email is None:
+            return
+    message_template = read_template('message.txt')
 
-def extract_information(profilename):
-    #here create the basic model for user info; NPI is not here
-    #path is image path
-    profilepath = profilename    # Obtain profile
-    profile     = Profile.from_username(L.context, profilename)
-    followers   = profile.followers
-    name        = profile.full_name
-    biography   = profile.biography
+    # set up the SMTP server
+    s = smtplib.SMTP(host='smtp-mail.outlook.com',
+                     port=587)  # smtplib.SMTP(host='your_host_address_here', port=your_port_here)
+    s.starttls()
+    s.login(MY_ADDRESS, PASSWORD)
+
+    msg = MIMEMultipart()  # create a message
+
+    message = message_template.substitute(PERSON_NAME=name.title(), ID = id)
+
+    # Prints out the message body for our sake
+    print(message)
+
+    # setup the parameters of the message
+    msg['From'] = MY_ADDRESS
+    msg['To'] = email
+    msg['Subject'] = "Results are ready"
+
+    # add in the message body
+    msg.attach(MIMEText(message, 'plain'))
+
+    # send the message via the server set up earlier.
+    s.send_message(msg)
+    del msg
+
+    # Terminate the SMTP session and close the connection
+    s.quit()
+
+def extract_information(id):
+    # here create the basic model for user info; NPI is not here
+    # path is image path
+    cursor = conn.execute("SELECT instagram from application_users WHERE id =" + str(id) + ";")
+    for row in cursor:
+        profilename = row[0]
+
+    profilepath = profilename  # Obtain profile
+    profile = Profile.from_username(L.context, profilename)
+    followers = profile.followers
+    full_name = profile.full_name
+    biography = profile.biography
     media_count = profile.mediacount
-    followees   = profile.followees
-    private = profile.is_private #bool
-    #Updating user table with information
-    if(private):
-        upsql = "UPDATE application_users SET " \
+    followees = profile.followees
+    not_public = profile.is_private
+
+    if (not_public):
+        private = 1
+    else:
+        private = 0
+
+    # Updating user table with information
+    upsql = "UPDATE application_users SET " \
+            "full_name = '" + full_name + "'," \
             "biography = '" + biography + "'," \
             "media_count = " + str(media_count) + "," \
             "followers = " + str(followers) + "," \
             "following = " + str(followees) + "," \
-            "private = '" + str(private) + "'," \
-            "state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
+            "public = " + str(private) + "," \
+            "state = '" + 'processing' + "' WHERE id =" + str(id) + ";"
+    print(upsql)
+    cur = conn.cursor()
+    cur.execute(upsql)
+    conn.commit()
+
+    if (private):
+        upsql = "UPDATE application_users SET " \
+                "biography = '" + biography + "'," \
+                "media_count = " + str(media_count) + "," \
+                "followers = " + str(followers) + "," \
+                "following = " + str(followees) + "," \
+                "private = '" + str(private) + "'," \
+                "state = '" + 'processed' + "' WHERE id =" + str(id) + ";"
         print(upsql)
         cur = conn.cursor()
         cur.execute(upsql)
         conn.commit()
-        return private
+
+        send_email(id)
     else:
         upsql = "UPDATE application_users SET " \
                 "biography = '" + biography + "'," \
@@ -197,43 +277,38 @@ def extract_information(profilename):
                 "followers = " + str(followers) + "," \
                 "following = " + str(followees) + "," \
                 "private = '" + str(private) + "'," \
-                "state = '" + 'processing' + "' WHERE instagram ='" + profilename + "';"
+                "state = '" + 'processing' + "' WHERE id =" + str(id) + ";"
         print(upsql)
         cur = conn.cursor()
         cur.execute(upsql)
         conn.commit()
 
+    image_processed = False
+    posts_processed = False
+    posts = extract_posts(profile, profilepath)
+    print("posts extracted")
+    posts_processed = process_posts(posts, profilename, id)
+    print(posts_processed)
 
-        id = -1
-        cursor = conn.execute("SELECT id from application_users WHERE instagram ='" + profilename + "';")
-        for row in cursor:
-            id = row[0]
+    ########## Image Processing ###########
+    # Here check if record is already in DB then no need to train for images then
+    # model_save_path = "./model/model.txt"
+    # knn_clf = train('TrainingDataset',model_save_path)
 
-        image_processed = False
-        posts_processed = False
-        posts = extract_posts(profile,profilepath)
-        print("posts extracted")
-        posts_processed = process_posts(posts,profilename,id)
-        print(posts_processed)
+    if (posts):
+        image_processed = process_Images(profilename, id)  # ,model_save_path)
+        print("images processed")
+    else:
+        image_processed == True
+    if posts_processed == True and image_processed == True:
+        upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE id =" + str(id) + ";"
+        cur = conn.cursor()
+        cur.execute(upsql)
+        conn.commit()
+        send_email(id)
 
-        ########## Image Processing ###########
-        # Here check if record is already in DB then no need to train for images then
-        #model_save_path = "./model/model.txt"
-        #knn_clf = train('TrainingDataset',model_save_path)
-
-        if(posts):
-            image_processed = process_Images(profilename,id)#,model_save_path)
-            print("images processed")
-        else:
-            image_processed == True
-        if posts_processed == True and image_processed == True:
-            upsql = "UPDATE application_users SET state = '" + 'processed' + "' WHERE instagram ='" + profilename + "';"
-            cur = conn.cursor()
-            cur.execute(upsql)
-            conn.commit()
-
-        print("public profile " + profilename + "complete")
-        return private
+    print(profilename + "complete and id" + id)
+    return private
 
 
 def extract_posts(profile,profilepath):
