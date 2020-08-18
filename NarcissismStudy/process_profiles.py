@@ -12,8 +12,8 @@ from os import listdir
 from os.path import isdir, join, isfile, splitext
 import face_recognition
 from face_recognition import face_locations
-from face_recognition.cli import image_files_in_folder
-#from face_recognition.face_detection_cli import image_files_in_folder
+# from face_recognition.cli import image_files_in_folder
+from face_recognition.face_detection_cli import image_files_in_folder
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
