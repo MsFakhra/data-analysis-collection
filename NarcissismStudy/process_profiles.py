@@ -126,7 +126,8 @@ fear = [128552,128561]
 
 L = Instaloader()
 analyzer = initializeAnalyzer()  #sentiment analyzer
-knn_clf = train('project/application/static/media') #image knn classifier
+training_folder = 'project/application/static/media'
+knn_clf = train(training_folder) #image knn classifier
 conn = sqlite3.connect('project/db.sqlite3') #Database
 #print("Opened database successfully")
 
@@ -249,7 +250,7 @@ def extract_information(id):
             "media_count = " + str(media_count) + "," \
             "followers = " + str(followers) + "," \
             "following = " + str(followees) + "," \
-            "public = " + str(private) + "," \
+            "private = " + str(private) + "," \
             "state = '" + 'processing' + "' WHERE id =" + str(id) + ";"
     print(upsql)
     cur = conn.cursor()
@@ -307,7 +308,7 @@ def extract_information(id):
         conn.commit()
         send_email(id)
 
-    print(profilename + "complete and id" + id)
+    print(profilename + "complete and id" + str(id))
     return private
 
 
@@ -915,11 +916,12 @@ def predict(X_img_path, knn_clf = None, model_save_path ="", DIST_THRESH = .5):
 ###########Image Analysis
 
 def startjob():
-
     cursor = conn.execute("SELECT * from application_users WHERE state = 'pending';")
     for row in cursor:
         profile = row[3]
-        extract_information(profile)
+        id = row[0]
+        extract_information(id)
+        #extract_information(profile)
         #print("ID = ", row)
     #extract_information(profile,profilepath)
 
