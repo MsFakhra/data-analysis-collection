@@ -1,6 +1,27 @@
 {% extends "include.html" %}
 {% block content %}
-
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="{% url 'home' %}">Behavioral Stats</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'whatwedo' %}">What we do</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="{% url 'contactus' %}" tabindex="-1">Contact Us</a>
+        </li>
+      </ul>
+      <p align="right"><a href="{% url 'register' %}"><img src="static/media/signup.svg" width="20%" height="20%"></a></p>
+    </div>
+  </nav>
+</header>
       <div class="container marketing">
         <div class="row">
           <div class="col-lg-12" align="center">
@@ -15,7 +36,7 @@
               <div class="col-md-7">
                 <p class="lead">We would like to hear from you. So, if you want to provide any feedback or suggestions related to our work. Please feel free to contact:
                   <ul class = "ref">
-                    <li>*Fakhra Jabeen: Click here to <a href="mailto:f.jabeen@vu.nl">email</a></li>
+                    <li>*Fakhra Jabeen: Click <a href="mailto:f.jabeen@vu.nl"> here</a> to email</li>
                     <li>Charlotte Gerritsen</li>
                     <li>Jan Treur</li>
                   </ul>

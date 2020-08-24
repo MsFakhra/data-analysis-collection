@@ -14,6 +14,15 @@ class Users(models.Model):
     created_at = models.DateTimeField('created',default= datetime.now, null = True)
     state = models.TextField('state', default= 'pending')
     private = models.BooleanField('isprivate',default= False)
+    # Seven Components
+    authority = models.IntegerField(default=0, null = True) # Authority refers to a person's leadership skills and power. People who score higher on authority like to be in charge and gain power, often for power's sake alone.
+    sufficiency = models.IntegerField(default=0, null = True)  # This trait refers to how self-sufficient a person is, that is, how much you rely on others versus your own abilities to meet your needs in life.
+    superior = models.IntegerField(default=0, null = True)  # This trait refers to whether a person feels they are more superior than those around them.
+    exhibit = models.IntegerField(default=0, null = True)  # This trait refers to a person's need to be the center of attention, and willingness to ensure they are the center of attention (even at the expense of others' needs).
+    exploit = models.IntegerField(default=0, null = True)  # This trait refers to how willing you are to exploit others in order to meet your own needs or goals.
+    vanity = models.IntegerField(default=0, null = True)  # This trait refers to a person's vanity, or their belief in one's own superior abilities and attractiveness compared to others.
+    entitle = models.IntegerField(default=0, null = True)  # This trait refers to the expectation and amount of entitlement a person has in their lives, that is, unreasonable expectations of especially favorable treatment or automatic compliance with one's expectations. People who score higher on this trait generally have a greater expectation of entitlement, while those who score lower expect little from others or life.
+
 
 class Posts(models.Model):
     user_id = models.BigIntegerField('user_id') #P.K

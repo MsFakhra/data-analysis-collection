@@ -46,6 +46,7 @@ def initializeAnalyzer():
             iam_apikey=apikey,
             url=urlref
     )
+
     return tone_analyzer3
 
 #Images

@@ -10115,6 +10115,7 @@ a.text-success:hover, a.text-success:focus {
 
 .text-info {
   color: #17a2b8 !important;
+  text_indent: 75%;
 }
 
 a.text-info:hover, a.text-info:focus {

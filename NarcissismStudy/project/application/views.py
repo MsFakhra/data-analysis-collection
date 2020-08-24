@@ -81,17 +81,65 @@ def step2(request):
 
     return render(request, 'step2.html', {'questionList':  questionList})
 
+def statement(request):
+    return render(request, 'privacy_statement.html', {})
+
+def terms(request):
+    return render(request, 'privacy_terms.html', {})
+
 def thankyou(request):
     #request.POST['question_'
     i=1;
-    score=0
+    score=0 #NPI score
+    # Seven Components
+    authority = 0 # Authority refers to a person's leadership skills and power. People who score higher on authority like to be in charge and gain power, often for power's sake alone.
+    sufficiency = 0 #This trait refers to how self-sufficient a person is, that is, how much you rely on others versus your own abilities to meet your needs in life.
+    superior = 0 #This trait refers to whether a person feels they are more superior than those around them.
+    exhibit = 0 # This trait refers to a person's need to be the center of attention, and willingness to ensure they are the center of attention (even at the expense of others' needs).
+    exploit = 0 #This trait refers to how willing you are to exploit others in order to meet your own needs or goals.
+    vanity = 0 #This trait refers to a person's vanity, or their belief in one's own superior abilities and attractiveness compared to others.
+    entitle = 0 #This trait refers to the expectation and amount of entitlement a person has in their lives, that is, unreasonable expectations of especially favorable treatment or automatic compliance with one's expectations. People who score higher on this trait generally have a greater expectation of entitlement, while those who score lower expect little from others or life.
+
+    authority_list = [1, 8, 10, 11, 12, 32, 33, 36]
+    sufficiency_list = [17, 21, 22, 31, 34, 39]
+    superior_list = [4, 9, 26, 37, 40]
+    exhibit_list = [2, 3, 7, 20, 28, 30, 38]
+    exploit_list = [6, 13, 16, 23, 35]
+    vanity_list = [15, 19, 29]
+
     while i < 41:
         if 'question_' + str(i) in request.POST:
             score += int(request.POST['question_' + str(i)])
+            if i in authority_list:
+                authority += int(request.POST['question_' + str(i)])
+            else:
+                if i in sufficiency_list:
+                    sufficiency += int(request.POST['question_' + str(i)])
+                else:
+                    if i in superior_list:
+                        superior += int(request.POST['question_' + str(i)])
+                    else:
+                        if i in exhibit_list:
+                            exhibit += int(request.POST['question_' + str(i)])
+                        else:
+                            if i in exploit_list:
+                                exploit += int(request.POST['question_' + str(i)])
+                            else:
+                                if i in vanity_list:
+                                    vanity += int(request.POST['question_' + str(i)])
+                                else:
+                                    entitle += int(request.POST['question_' + str(i)])
         i+=1
 
     user = Users.objects.get(id=request.session['user'])
     user.npi_score = score
+    user.authority = authority
+    user.sufficiency = sufficiency
+    user.superior = superior
+    user.exhibit = exhibit
+    user.exploit = exploit
+    user.vanity = vanity
+    user.entitle = entitle
     user.save()
     return render(request, 'thankyou.html', {'score': score})
 
