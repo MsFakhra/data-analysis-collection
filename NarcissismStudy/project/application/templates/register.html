@@ -39,7 +39,14 @@
                   <label for="selfie">Selfie <span class="text-muted"></span></label>
                   <input type="file" class="form-control" id="selfie" name="selfie" required>
                   <div class="invalid-feedback">
-                    Please enter a valid email address for shipping updates.
+                    Please upload a valid selfie.
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <input type="checkbox" id="terms" name="terms" required>
+                  <label for="terms"><span class="text-muted"></span> I agree to <a href="{% url 'terms' %}">terms & conditions.</a> </label>
+                  <div class="invalid-feedback">
+                    Please agree to terms & conditions to proceed.
                   </div>
                 </div>
                 <button type="submit" class="btn btn-lg btn-block btn-secondary">Proceed</button>
