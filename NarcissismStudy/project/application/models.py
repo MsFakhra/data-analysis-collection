@@ -13,7 +13,7 @@ class Users(models.Model):
     following = models.IntegerField(default=0, null = True)
     created_at = models.DateTimeField('created',default= datetime.now, null = True)
     state = models.TextField('state', default= 'pending')
-    private = models.BooleanField('isprivate',default= False)
+    private = models.BooleanField('private',default= False)
     # Seven Components https://psychcentral.com/cgi-bin/narcissisticquiz.cgi
     authority = models.IntegerField(default=0, null = True) # Authority refers to a person's leadership skills and power. People who score higher on authority like to be in charge and gain power, often for power's sake alone.
     sufficiency = models.IntegerField(default=0, null = True)  # This trait refers to how self-sufficient a person is, that is, how much you rely on others versus your own abilities to meet your needs in life.
