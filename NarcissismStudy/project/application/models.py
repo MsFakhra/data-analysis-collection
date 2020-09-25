@@ -22,6 +22,9 @@ class Users(models.Model):
     exploit = models.IntegerField(default=0, null = True)  # This trait refers to how willing you are to exploit others in order to meet your own needs or goals.
     vanity = models.IntegerField(default=0, null = True)  # This trait refers to a person's vanity, or their belief in one's own superior abilities and attractiveness compared to others.
     entitle = models.IntegerField(default=0, null = True)  # This trait refers to the expectation and amount of entitlement a person has in their lives, that is, unreasonable expectations of especially favorable treatment or automatic compliance with one's expectations. People who score higher on this trait generally have a greater expectation of entitlement, while those who score lower expect little from others or life.
+    # Updation of enteries
+    gender = models.CharField(max_length=500, null=True)
+    invalid = models.BooleanField('invalid_data',default=False)
 
 
 class Posts(models.Model):

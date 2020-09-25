@@ -42,6 +42,20 @@
                     Please upload a valid selfie.
                   </div>
                 </div>
+                  <!--Updated -->
+                <div class="mb-3">
+                  <label for="gender">Gender <span class="text-muted"></span></label><br>
+                      <input type="radio" id="male" name="gender" value="male">
+                      <label for="male">Male</label>
+                      <input type="radio" id="female" name="gender" value="female">
+                      <label for="female">Female</label>
+                      <input type="radio" id="other" name="gender" value="other">
+                      <label for="other">Other</label>
+                  <div class="invalid-feedback">
+                  Please mark your gender.
+                  </div>
+                </div>
+                  <!--Updated -->
                 <div class="mb-3">
                   <input type="checkbox" id="terms" name="terms" required>
                   <label for="terms"><span class="text-muted"></span> I agree to <a href="{% url 'terms' %}">terms & conditions.</a> </label>
