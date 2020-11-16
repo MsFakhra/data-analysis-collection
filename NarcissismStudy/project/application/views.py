@@ -61,7 +61,7 @@ def step2(request):
         ['I always know what I am doing.', 'Sometimes I am not sure of what I am doing.', '1', '0'],
         ['I sometimes depend on people to get things done.', 'I rarely depend on anyone else to get things done.', '0', '1'],
         # 23 is the validity check
-        ['I pay attention to the questionanaires.', 'I don\'t pay attention. Choose this if you really do.', '1',
+        ['I pay attention to the questionanaires.', 'I paid attention to this questionnaire. Choose this if you really do.', '1',
          '0'],  #if user chooses 1 => this data is invalid
         # 23 is the validity check
         ['Sometimes I tell good stories.', 'Everybody likes to hear my stories.', '0', '1'], #24
