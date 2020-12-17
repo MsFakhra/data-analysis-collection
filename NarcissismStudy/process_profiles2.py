@@ -1,4 +1,4 @@
-##Latest code for profile analysis updated in 21st July 2020
+##Latest code for profile analysis without tone analyzer
 import pickle
 from numpy import random
 from instaloader import Instaloader, Profile
@@ -51,7 +51,7 @@ def specs4():#hotmail
     version = '2020-09-09' #SEP 9, 2020 - 04:49:51 PM
     return apikey,urlref,version
 
-
+print("starting now")
 vanalyzer = SentimentIntensityAnalyzer()
 #Prereqs
 
@@ -150,14 +150,14 @@ sad = [128546,128547,128548,128549,128553,128557,128560,128575,128576,128078]
 fear = [128552,128561]
 
 L = Instaloader()
-apikey, urlref, version = specs1()
-analyzer1 = initializeAnalyzer(apikey, urlref, version)
-apikey, urlref, version = specs2()
-analyzer2 = initializeAnalyzer(apikey, urlref, version)
-apikey, urlref, version = specs3()
-analyzer3 = initializeAnalyzer(apikey, urlref, version)
-apikey, urlref, version = specs4()
-analyzer4 = initializeAnalyzer(apikey, urlref, version)
+#apikey, urlref, version = specs1()
+#analyzer1 = initializeAnalyzer(apikey, urlref, version)
+#apikey, urlref, version = specs2()
+#analyzer2 = initializeAnalyzer(apikey, urlref, version)
+##apikey, urlref, version = specs3()
+#analyzer3 = initializeAnalyzer(apikey, urlref, version)
+#apikey, urlref, version = specs4()
+#analyzer4 = initializeAnalyzer(apikey, urlref, version)
 
 
 
@@ -419,20 +419,20 @@ def process_posts(posts,profilename,user_id):
         conn.execute(insql)
         conn.commit()
         #process comments
-        if(post.comments > 0):
-            cmtlist = process_comments(post,profilename)
-            if(cmtlist):
-                id = -1
-                outsql = "SELECT ID from application_posts WHERE post_url = '" + post_url + "';"
-                cursor = conn.execute(outsql)
-                for row in cursor:
-                    id = row[0]
-                processed = write_comments_db(cmtlist, profilename,id)
-            else:
-                print("No conversations found in "+insql)
-                processed = True
+#        if(post.comments > 0):
+#            cmtlist = process_comments(post,profilename)
+#            if(cmtlist):
+#                id = -1
+##                outsql = "SELECT ID from application_posts WHERE post_url = '" + post_url + "';"
+ #               cursor = conn.execute(outsql)
+ #               for row in cursor:
+ #                   id = row[0]
+ #               processed = write_comments_db(cmtlist, profilename,id)
+ #           else:
+ #               print("No conversations found in "+insql)
+ #               processed = True
     #print('should update posts in db and then update processed as true')
-    return processed;
+    return True;
             #save this in database
 #write Comments to DB
 def write_comments_db(cmtlist, profilename,post_id):
@@ -967,6 +967,7 @@ def predict(X_img_path, knn_clf = None, model_save_path ="", DIST_THRESH = .5):
 ###########Image Analysis
 
 def startjob():
+    print("Job started")
     cursor = conn.execute("SELECT * from application_users WHERE state = 'pending' AND invalid = 0;")
     for row in cursor:
         print("record = ", row)
@@ -978,4 +979,5 @@ def startjob():
     #extract_information(profile,profilepath)
 
 if __name__ == '__main__':
+    print("main")
     startjob()

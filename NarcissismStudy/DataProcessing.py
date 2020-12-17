@@ -172,11 +172,14 @@ def get_max(instagram,posts,comments,pictures,likes,hashtags,f):
 def compute_average(lst):
     return sum(lst) / len(lst)
 
-def write_output_data(f,instagram,followers,npi,n_posts,n_comments,n_pics,n_likes):
+def write_output_data(f,instagram,followers,npi,n_posts,n_comments,n_pics,n_likes,avgf):
     avg_n_posts     = round(compute_average(n_posts),2)
     avg_n_comments  = round(compute_average(n_comments),2)
     avg_n_pics      = round(compute_average(n_pics),2)
     avg_n_likes     = round(compute_average(n_likes),2)
+    row = instagram + ',' + str(avg_n_posts) + ',' + str(avg_n_pics) + ',' + str(avg_n_likes) + ',' + str(avg_n_comments)
+    avgf.write(row + '\n')
+
     alpha = ALPHA
     beta = BETA
     gamma = GAMMA
@@ -262,8 +265,10 @@ def write_data(instagram,posts,comments,pictures,likes,hashtags,f):
 i = 0
 outsql = "SELECT instagram FROM application_users"
 cursor = conn.execute(outsql)
+list = []
 for row in cursor:
-    print(row)
+    print(row[0])
+    list.append(row[0])
     i +=1
 print(i)
 
@@ -277,8 +282,8 @@ conn.commit()
 
 
 csv_result = []
-list = ["lisa_nolan"]#,"amelia_goodman","inked_keifer93","shaunaburke96","miabrown_","evalouuise","keishahaye","slotheysimpson"]#"chloescantlebury","nlb_.x","karalips","kerry.linney","abbiethomson__","aribroadbent"]#["nlb_.x", "lydiaajacksonx","kerry.linney"]#["emzohorne","louannvecchia","oliviameikle_"] # 'shelbymccrann','inked_keifer93','nlb_.x',
-olist = ["charlotteshipman","evalouuise","kirstenmcleodd",'lisa_nolan','amelia_goodman','chloescantlebury','emilybahr','thearoberts','imymann','lisannacarmen','aribroadbent','miabrown_','slotheysimpson','lydiaajacksonx','keishahaye', 'abbiethomson__','kerry.linney','karalips','shaunaburke96']
+#list = ["lisa_nolan"]#,"amelia_goodman","inked_keifer93","shaunaburke96","miabrown_","evalouuise","keishahaye","slotheysimpson"]#"chloescantlebury","nlb_.x","karalips","kerry.linney","abbiethomson__","aribroadbent"]#["nlb_.x", "lydiaajacksonx","kerry.linney"]#["emzohorne","louannvecchia","oliviameikle_"] # 'shelbymccrann','inked_keifer93','nlb_.x',
+#olist = ["charlotteshipman","evalouuise","kirstenmcleodd",'lisa_nolan','amelia_goodman','chloescantlebury','emilybahr','thearoberts','imymann','lisannacarmen','aribroadbent','miabrown_','slotheysimpson','lydiaajacksonx','keishahaye', 'abbiethomson__','kerry.linney','karalips','shaunaburke96']
 #raw results
 filename = "results.csv"
 
@@ -286,14 +291,18 @@ filename = "results.csv"
 normalized_file = "normalized_results.csv"
 #outputfile contains the computed NPI and NPI from the questionnaire for comparison
 output_file = "output.csv"
+avg_out_file = "avg_output.csv"
 firstrow = ',,'+'mm/yy' + ',' + 'Post Count' + ',' + 'Selfies,Others' + ',' + 'Avg. Likes' + ',' + 'hashtags' + ',' + 'Analytical,Anger,Fear,Joy,Sadness,Positive,Negative,Neutral'
 nf_firstrow = ',,mm/yy,posts_count,pic_count,comments_count,likes_count'
 out_firstrow = ',,NPI_Recieved, NPI_Computed'
-with open(filename, "w+") as f, open(normalized_file, "w+") as nf, open(output_file, "w+") as of :
+avg_of_firstrow = 'instagram,avg_posts_count,avg_pic_count,avg_likes_count,avg_comments_count'
+
+with open(filename, "w+") as f, open(normalized_file, "w+") as nf, open(output_file, "w+") as of, open(avg_out_file, "w+") as avgf :
 #with open(filename, "w+") as f:
     f.write(firstrow +'\n')
     nf.write(nf_firstrow +'\n')
     of.write(out_firstrow + '\n')
+    avgf.write(avg_of_firstrow + '\n')
 
     for instagram in list:
         #getting id
@@ -362,7 +371,7 @@ with open(filename, "w+") as f, open(normalized_file, "w+") as nf, open(output_f
         max_posts,max_comments,max_pics,max_likes = get_max(instagram,posts,comments,pictures,likes,hashtags,f)
         write_data(instagram,posts,comments,pictures,likes,hashtags,f)
         n_posts,n_comments,n_pics,n_likes = write_normalized_data(instagram,posts,comments,pictures,likes,hashtags,max_posts,max_comments,max_pics,max_likes,nf)
-        write_output_data(of,instagram,followers,npi,n_posts,n_comments,n_pics,n_likes)
+        write_output_data(of,instagram,followers,npi,n_posts,n_comments,n_pics,n_likes,avgf)
 exit(0)
 
 #pip install https://pypi.python.org/packages/da/06/bd3e241c4eb0a662914b3b4875fc52dd176a9db0d4a2c915ac2ad8800e9e/dlib-19.7.0-cp36-cp36m-win_amd64.whl#md5=b7330a5b2d46420343fbed5df69e6a3f
