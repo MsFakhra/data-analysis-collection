@@ -19,10 +19,10 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 import sqlite3
 
-import smtplib
-from string import Template
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+#import smtplib
+#from string import Template
+#from email.mime.multipart import MIMEMultipart
+#from email.mime.text import MIMEText
 #######initializations
 #Tone Analysis
 from watson_developer_cloud import ToneAnalyzerV3
@@ -820,28 +820,28 @@ def processTexts(text):
     #choosing one analyzer of 4 profilespecs
     nummer = random.randint(4)
     analyzer = 1
-    if nummer == 1:
-        analyzer = analyzer1
-    else:
-        if nummer == 2:
-            analyzer = analyzer2
-        else:
-            if nummer == 3:
-                analyzer = analyzer3
-            else:
-                analyzer = analyzer4
+    #if nummer == 1:
+    #    analyzer = analyzer1
+    #else:
+    #    if nummer == 2:
+    #        analyzer = analyzer2
+    #    else:
+    #        if nummer == 3:
+    #            analyzer = analyzer3
+    #        else:
+    #            analyzer = analyzer4
 
-    result = []
-    tone_analysis = analyzer.tone({'text': text}, content_type='application/json').get_result()
+    #result = []
+    #tone_analysis = analyzer.tone({'text': text}, content_type='application/json').get_result()
 
-    for key, value in tone_analysis.items():
-        key_value = key
-        if(key_value == 'sentences_tone'):
-            sentences_list = value #dict
-            for sentence in sentences_list:
-                jsoncorrespondance = extract_tone_correspondence(sentence)
-                result.append(jsoncorrespondance)
-    return result
+    #for key, value in tone_analysis.items():
+    #    key_value = key
+    #    if(key_value == 'sentences_tone'):
+    #        sentences_list = value #dict
+    #        for sentence in sentences_list:
+    ##            jsoncorrespondance = extract_tone_correspondence(sentence)
+    #            result.append(jsoncorrespondance)
+    #return result
 
 ##########################Tone Analysis end
 
